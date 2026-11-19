@@ -65,3 +65,7 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 - `guard-network.sh` and `verify-tests.sh` changed in comments only. Until step 5 redeploys them,
   their VPS copies differ from these in those comment lines. `guard-network.sh` is still byte for byte
   the same as Telma's.
+
+## 2026-11-19: lessons 8.5 and 8.6 moved here
+
+- They sat in Open in Telma's frozen hardening plan. They run on the bot, so they're tracked here now.
