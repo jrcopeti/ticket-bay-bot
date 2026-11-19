@@ -14,6 +14,4 @@ ticket-bay fork. It shares the host with Tania (jrcopeti/tania) and nothing else
   gitleaks on staged changes; CI runs it on the full history.
 - **No secrets or personal data:** no keys, webhook URLs, inbox address, Discord IDs, IP addresses,
   private repo names.
-- **Never copy the course kit** (`~/code/ai-agent-engineer-course-kit`): its license forbids it. Read
-  it for setup details, describe in your own words.
 - **Public prose** (README, threat model, ADRs, postmortem) is José's to write.
