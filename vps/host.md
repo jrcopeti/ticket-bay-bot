@@ -23,6 +23,7 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-bot/set-secret`, `support-inbox` | `~/host-tools/` |
 | `ticket-bay-bot/guard-network.sh`, `verify-tests.sh` | `~/.hermes/agent-hooks/` |
 | `ticket-bay-bot/egress/compose.yaml`, `squid.conf` | `~/egress/` |
+| `ticket-bay-bot/sandbox/Dockerfile` | `~/sandbox/` |
 | `skills-sync/skills-update.sh`, `scan-diff.py` | `/usr/local/lib/skills-sync/` |
 | `skills-sync/skills-pull.cron` | `/etc/cron.d/skills-pull` |
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
