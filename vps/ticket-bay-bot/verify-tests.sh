@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Hermes pre_verify gate for Tania (course M8: the stop signal it cannot fake).
+# Hermes pre_verify gate for Telma (course M8: the stop signal it cannot fake).
 # Fires when the agent edited code and wants to finish. If the edit is inside a task
 # worktree (~/dev/wt/<WT>) of a repo with an `npm run test:unit` script, run that suite
 # in the sandbox container. Red -> keep the agent going with the failure tail

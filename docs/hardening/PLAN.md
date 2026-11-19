@@ -4,12 +4,12 @@
 input, a way out). Permissions, mounts and the network enforce every control. Prompts and command
 regexes don't count as controls.
 
-**History:** the bot was split from Tania by trust boundary on 2026-11-17 and hardened together with
-her (steps 0 to 6). That work is in jrcopeti/tania at tag `pre-split`:
-[PLAN](https://github.com/jrcopeti/tania/blob/pre-split/docs/hardening/PLAN.md),
-[DEVLOG](https://github.com/jrcopeti/tania/blob/pre-split/docs/hardening/DEVLOG.md),
-[audit after](https://github.com/jrcopeti/tania/blob/pre-split/docs/hardening/audit-after.md).
-This repo was split from Tania's on 2026-11-19.
+**History:** the bot was split from Telma by trust boundary on 2026-11-17 and hardened together with
+her (steps 0 to 6). That work is in jrcopeti/telma at tag `pre-split`:
+[PLAN](https://github.com/jrcopeti/telma/blob/pre-split/docs/hardening/PLAN.md),
+[DEVLOG](https://github.com/jrcopeti/telma/blob/pre-split/docs/hardening/DEVLOG.md),
+[audit after](https://github.com/jrcopeti/telma/blob/pre-split/docs/hardening/audit-after.md).
+This repo was split from Telma's on 2026-11-19.
 
 ## Decisions in force
 

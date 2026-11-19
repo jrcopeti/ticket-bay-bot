@@ -1,9 +1,9 @@
 # Kill switch: ticket-bay-bot
 
 **When:** a `🚫 squid blocked` message in the ticket-bay channel, or a memory diff with something
-nobody saved. Tania keeps running; she shares nothing with the bot but the host. If the host itself
+nobody saved. Telma keeps running; she shares nothing with the bot but the host. If the host itself
 looks compromised (a root login you don't know, a changed `/etc`, an unknown process), run this and
-[Tania's kill switch](https://github.com/jrcopeti/tania/blob/main/vps/tania/kill-switch.md), then
+[Telma's kill switch](https://github.com/jrcopeti/telma/blob/main/vps/telma/kill-switch.md), then
 rebuild the VPS (see [host.md](../host.md)).
 
 ## 1. Stop
