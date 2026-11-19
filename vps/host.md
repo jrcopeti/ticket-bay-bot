@@ -20,15 +20,14 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | In this repo | On the VPS |
 |---|---|
 | `ticket-bay-bot/pull-repos.sh`, `squid-denials.sh`, `memory-diff.sh`, `mint-gh-token.sh`, `bug-loop-pre.sh`, `pr-triage-pre.sh` | `~/.hermes/scripts/` |
-| `ticket-bay-bot/set-secret` | `~/host-tools/` |
+| `ticket-bay-bot/set-secret`, `support-inbox` | `~/host-tools/` |
+| `ticket-bay-bot/guard-network.sh`, `verify-tests.sh` | `~/.hermes/agent-hooks/` |
 | `ticket-bay-bot/egress/compose.yaml`, `squid.conf` | `~/egress/` |
 | `skills-sync/skills-update.sh`, `scan-diff.py` | `/usr/local/lib/skills-sync/` |
 | `skills-sync/skills-pull.cron` | `/etc/cron.d/skills-pull` |
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
 
-Not in this repo: `~/.hermes/agent-hooks/guard-network.sh` (the terminal guard),
-`~/.hermes/agent-hooks/verify-tests.sh` (the test gate) and `~/host-tools/support-inbox` (claims bug
-emails). They come from the course kit, whose license forbids republishing them.
+The deployed `support-inbox` differs from this copy in one line: it holds the bug inbox address.
 
 ## Rules for the whole host
 
