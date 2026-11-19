@@ -52,3 +52,5 @@ This repo was split from Telma's on 2026-11-19.
   Timeout raised to 300 s on 2026-11-18; check on the next bug-loop run that edits code.
 - `zod` (< 4.6.6) and `source-map-js` Dependabot alerts on the fork stay open.
 - Step 4 proof still to see: the first real skills update or block.
+- Lesson 8.5 (email 2, steps 14 and 15) and 8.6: run them on the bot. Moved here from Telma's frozen
+  hardening plan on 2026-11-19.
