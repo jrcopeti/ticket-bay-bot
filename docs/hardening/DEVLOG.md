@@ -8,7 +8,8 @@ Entries before 2026-11-19 are in jrcopeti/tania at tag `pre-split`
 | Branch | Step | State |
 |---|---|---|
 | `main` | import | first commit |
-| `docs/unversioned-scripts` | after import | PR to open |
+| `docs/unversioned-scripts` | after import | merged (#1) |
+| `chore/own-host-scripts` | after import | PR to open |
 
 ## 2026-11-19: imported from jrcopeti/tania
 
@@ -26,3 +27,14 @@ All 11 deployed files this repo holds match it byte for byte (bot scripts, skill
 app), except `memory-diff.sh`, whose deployed copy differs only in the header comment. The checksum
 also found five deployed scripts in no repo (Open in [PLAN.md](PLAN.md)). The full check is in
 jrcopeti/tania's [repo-split devlog](https://github.com/jrcopeti/tania/blob/main/docs/repo-split/DEVLOG.md).
+
+## 2026-11-19: the bot's own host scripts
+
+- Added `mint-gh-token.sh`, `bug-loop-pre.sh`, `pr-triage-pre.sh` and `set-secret`, copied from the
+  VPS byte for byte (José: they work, don't change them). gitleaks found nothing: they read their
+  secrets from files under `~/.config` and never hold one themselves. No tests yet: each one needs
+  GitHub, Gmail or a terminal.
+- `vps/host.md` now maps every file here to its path on the VPS.
+- Three more files on the VPS come from the course kit, unchanged or nearly (`guard-network.sh`,
+  `verify-tests.sh`, `support-inbox`). They stay out: the kit's license forbids republishing them.
+  `set-secret` was found next to `support-inbox`; it isn't kit code.

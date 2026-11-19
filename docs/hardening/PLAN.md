@@ -52,7 +52,5 @@ This repo was split from Tania's on 2026-11-19.
   Timeout raised to 300 s on 2026-11-18; check on the next bug-loop run that edits code.
 - `zod` (< 4.6.6) and `source-map-js` Dependabot alerts on the fork stay open.
 - Step 4 proof still to see: the first real skills update or block.
-- Five scripts deployed in the bot's Hermes home have never been in a repo: `bug-loop-pre.sh`,
-  `pr-triage-pre.sh`, `mint-gh-token.sh`, `verify-tests.sh` and `agent-hooks/guard-network.sh`
-  (found by the split's checksum, 2026-11-19). Bringing them in means reading each for secrets first:
-  José's call.
+- Three deployed files are course-kit code and not in this repo: `guard-network.sh`, `verify-tests.sh`
+  and `support-inbox` (see [host.md](../../vps/host.md)). The kit's license forbids republishing them.
