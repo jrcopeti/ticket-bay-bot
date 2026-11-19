@@ -1,0 +1,34 @@
+# Runs as the ticket-bay-app user with its own rootless Docker. Only the app's port is published,
+# on loopback. POSTGRES_PASSWORD and BETTER_AUTH_SECRET come from .env next to this file.
+services:
+  postgres:
+    image: postgres:17@sha256:0d938e975177bef9f1f61f3f9dbcf2e0aa0a139568f66d3415ed8892eb97f6ac
+    environment:
+      POSTGRES_USER: ticketbay
+      POSTGRES_DB: ticketbay
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbay -d ticketbay"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  app:
+    image: ticketbay-app:${TICKETBAY_COMMIT:?}
+    environment:
+      DATABASE_URL: postgres://ticketbay:${POSTGRES_PASSWORD}@postgres:5432/ticketbay
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?}
+      BETTER_AUTH_URL: http://127.0.0.1:3100
+      STRIPE_SECRET_KEY: sk_test_fake
+    ports:
+      - "127.0.0.1:3100:3100"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pg:

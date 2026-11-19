@@ -1,0 +1,26 @@
+# Runs as the ticket-bay-bot user, in its rootless Docker. The sandbox joins only `tbb-sandbox`,
+# which has no route out; squid sits on both networks and is the only way through.
+services:
+  squid:
+    # 24.04 LTS, _edge: the _beta tags (25.04 is end of life) stopped getting updates in 2025. Not the
+    # 26.04 image: it runs as UID 584792, which this rootless Docker's 65,536 IDs can't map.
+    image: ubuntu/squid:6.6-24.04_edge@sha256:d9c34c5ab74c6dd41cf1070d9b4221aac072e67e983527ca2d41512958f77506
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+      # Kept across container recreation; squid-denials.sh reads it with docker exec.
+      - logs:/var/log/squid
+    networks:
+      sandbox:
+        aliases: [egress]
+      outside: {}
+    restart: unless-stopped
+
+volumes:
+  logs: {}
+
+networks:
+  sandbox:
+    name: tbb-sandbox
+    internal: true
+  outside:
+    name: tbb-outside

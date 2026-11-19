@@ -1,0 +1,38 @@
+# Secret scan for this repo: gitleaks' default rules, plus the personal data
+# AGENTS.md bans (email addresses, IPs, Discord IDs and webhooks, Tailscale hosts).
+title = "ticket-bay-bot"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "email-address"
+description = "Email address"
+regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}'''
+[[rules.allowlists]]
+regexTarget = "match"
+regexes = ['''noreply''', '''@example\.(?:com|org|net)$''', '''^git@github\.com$''']
+
+[[rules]]
+id = "ipv4-address"
+description = "IPv4 address"
+regex = '''\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b'''
+[[rules.allowlists]]
+# Loopback, "any", the cloud metadata address, and the RFC 5737 documentation ranges.
+regexTarget = "match"
+regexes = ['''^127\.0\.0\.1$''', '''^0\.0\.0\.0$''', '''^169\.254\.169\.254$''', '''^(?:192\.0\.2|198\.51\.100|203\.0\.113)\.''']
+
+[[rules]]
+id = "discord-id"
+description = "Discord user, channel or server ID"
+regex = '''\b\d{17,20}\b'''
+
+[[rules]]
+id = "discord-webhook"
+description = "Discord webhook URL"
+regex = '''https://(?:ptb\.|canary\.)?discord(?:app)?\.com/api/webhooks/\d+/[\w-]+'''
+
+[[rules]]
+id = "tailscale-host"
+description = "Tailscale MagicDNS hostname"
+regex = '''\b[\w-]+\.[\w-]+\.ts\.net\b'''

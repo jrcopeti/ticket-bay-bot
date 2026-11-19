@@ -1,0 +1,7 @@
+#!/bin/sh
+# Blocks a commit that adds a secret or personal data (rules in .gitleaks.toml).
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed (brew install gitleaks), commit blocked" >&2
+  exit 1
+fi
+exec gitleaks git --pre-commit --staged --redact --no-banner
