@@ -38,3 +38,13 @@ jrcopeti/tania's [repo-split devlog](https://github.com/jrcopeti/tania/blob/main
 - Three more files on the VPS come from the course kit, unchanged or nearly (`guard-network.sh`,
   `verify-tests.sh`, `support-inbox`). They stay out: the kit's license forbids republishing them.
   `set-secret` was found next to `support-inbox`; it isn't kit code.
+
+## 2026-11-19: the VPS-only scripts into the repo
+
+- Added `guard-network.sh` (the terminal guard), `verify-tests.sh` (the test gate) and `support-inbox`
+  (claims bug emails), copied from the VPS (mode 755). José: publish them despite the course kit's
+  license. Each is the kit's file with 4 to 8 lines changed.
+- Read for secrets first. None: the scripts read their passwords from files. `support-inbox` held the
+  bug inbox address, replaced here with a placeholder; the deployed copy keeps it. The other two match
+  the VPS byte for byte. Tania's deployed `guard-network.sh` is identical (jrcopeti/tania#24).
+- `vps/host.md` maps each to its VPS path. No tests: each needs a Hermes payload, Docker or Gmail.
