@@ -48,3 +48,11 @@ jrcopeti/tania's [repo-split devlog](https://github.com/jrcopeti/tania/blob/main
   bug inbox address, replaced here with a placeholder; the deployed copy keeps it. The other two match
   the VPS byte for byte. Tania's deployed `guard-network.sh` is identical (jrcopeti/tania#24).
 - `vps/host.md` maps each to its VPS path. No tests: each needs a Hermes payload, Docker or Gmail.
+
+## 2026-11-19: the sandbox Dockerfile into the repo
+
+- Added `vps/ticket-bay-bot/sandbox/Dockerfile`, byte for byte from `~/sandbox/` on the VPS. A second
+  checksum (jrcopeti/tania's repo-split devlog) found it in no repo. No secret; not course-kit code.
+  It differs from Tania's in one line: an `AGENT_EMAIL` build arg.
+- Every deployed file now has a copy here or in Tania's repo. Differences: `memory-diff.sh` (comment
+  lines) and `support-inbox` (the inbox address).
