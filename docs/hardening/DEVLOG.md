@@ -38,3 +38,10 @@ jrcopeti/tania's [repo-split devlog](https://github.com/jrcopeti/tania/blob/main
 - Three more files on the VPS come from the course kit, unchanged or nearly (`guard-network.sh`,
   `verify-tests.sh`, `support-inbox`). They stay out: the kit's license forbids republishing them.
   `set-secret` was found next to `support-inbox`; it isn't kit code.
+
+## 2026-11-19: guard-network.sh into the repo
+
+- Added `vps/ticket-bay-bot/guard-network.sh`, copied from `~/.hermes/agent-hooks/` byte for byte
+  (mode 755). José: publish it despite the course kit's license. It is the kit's hook with 4 lines
+  changed, and no secret: only patterns it blocks. Tania's deployed copy is identical.
+- `vps/host.md` maps it to its VPS path. No test: the hook needs a Hermes payload.
