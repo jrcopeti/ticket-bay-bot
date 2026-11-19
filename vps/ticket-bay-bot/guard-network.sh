@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Hermes pre_tool_call guard for Tania (terminal tool). Ported from <repo>'s
-# .claude/hooks/guard-network.sh (course M2/M7). Tania has no webhook: Hermes
+# Hermes pre_tool_call guard for Telma (terminal tool). Ported from <repo>'s
+# .claude/hooks/guard-network.sh (course M2/M7). Telma has no webhook: Hermes
 # delivers results itself, so the agent never needs curl/wget. This is the layer that
 # does not depend on the model obeying the prompt. Exit 2 = block, stderr = reason.
 block() { echo "Blocked by guard-network: $1" >&2; exit 2; }
