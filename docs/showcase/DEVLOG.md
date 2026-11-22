@@ -5,7 +5,8 @@
 | Branch | Step | State |
 |---|---|---|
 | `docs/showcase-plan` | plan | PR #9 merged |
-| `ci/personal-data-net` | 1 | PR open |
+| `ci/personal-data-net` | 1 | PR #10 merged |
+| `docs/threat-model` | 2 | PR #11 open |
 
 ## 2026-11-21: plan
 
@@ -76,3 +77,35 @@
   read as an option, the JFIF message, a silent setup failure in the test. Not fixed: a staged
   rename rescans the whole file and binary files aren't scanned for values (a rename only finds
   what's already there; no binary docs here), and one `git diff` per file (the repo is small).
+
+## 2026-11-22: step 2, threat model
+
+- `docs/threat-model.md`, same shape as Telma's: assets, trust boundaries, legs per session,
+  13 threats with the control, the leg it cuts and the proof, accepted risks, detection, out of scope.
+- Proof is from the B1 to B9 injection cases and probes at Telma's tag `pre-split`; each row says
+  when the model refused and the wall was proved by a probe only. B7 was never run.
+- Checked against the fork's ruleset (API, read-only): `main` needs a PR with one approval and six
+  CI checks; only the owner's user bypasses it. So the bot can't merge its own PR, and the threat
+  model says so instead of "PR required".
+- Found while writing: the test gate goes green if an email gets the bot to delete the tests that
+  catch the bug (B1's obedient run did exactly that, before committing). Listed as an accepted risk;
+  the owner's approval and the fork's CI are the wall.
+- Branched off `main` while step 1 (PR #10) was open, then rebuilt as one commit on `main` after #10
+  merged. A merge of `main` didn't work: `pre-merge-commit` diffs against the branch, so it flagged
+  lines that came from `main` (`test-hooks.sh`, step 1's entry here) as new. Step 1's hooks need a
+  follow-up for that and for the 3-character list value below.
+- `/code-review` (default effort, all findings) found 7, all fixed: the skills repo's name and path
+  are on the private-values list, so the doc says "the skills repo" (they're still in `vps/host.md`
+  and older docs, where step 1's hook doesn't look at old lines); the "no session holds three legs"
+  line now says the token is the only private data; npm's `ignore-scripts` is named and marked as
+  VPS config not in this repo; the ruleset sentence names the owner's bypass; Telma moved inside the
+  VPS box in the diagram; this plan's row had an extra cell.
+- Not changed: review read `support-inbox`'s comment ("inside the sandbox the password is mounted at
+  `/opt/secrets`") as a mail password in the sandbox. The pre-split probes found only the 1-hour
+  token in the sandbox, and `bug-loop-pre.sh` runs `support-inbox` on the host, so the comment is
+  stale. The script stays byte for byte the VPS copy; step 5's diff with the VPS can settle it.
+- Step 1's private-values check, run by hand on this diff (its hook isn't on `main` yet), matched
+  a common English word in the lens ("off the m…", as Telma's doc says it): a 3-character value on
+  the local list is a substring of it. The lens now says "off the server". The same match blocks
+  the brain's docs guideline phrase "the local m…", so the list or the hook's substring match needs
+  a look in PR #10.
