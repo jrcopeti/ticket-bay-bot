@@ -39,7 +39,8 @@ denied request. On GitHub, check the fork's branches, PRs and comments by `ticke
 
 ## 4. Back on
 
-- Undo planted memory or skills with the restore line memory-diff prints.
+- Undo planted memory or skills with the restore line in memory-diff's post; it names that post's
+  own snapshot, so a later run doesn't change what it restores.
 - Close the email that carried the injection so the next bug-loop run doesn't claim it again.
 - If the host was touched: a new App private key (delete the old one) and a new OpenRouter key.
 - Unsuspend the App, then `sudo systemctl --user -M ticket-bay-bot@ enable --now hermes-gateway`

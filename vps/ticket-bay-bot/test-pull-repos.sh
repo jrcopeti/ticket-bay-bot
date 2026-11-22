@@ -11,11 +11,13 @@ pass=0 fail=0
 
 setup() {
   rm -rf "$T/w" && W=$T/w && mkdir -p "$W/home/.hermes/scripts" "$W/home/dev"
+  printf '#!/bin/sh\necho memory-diff ran\n' > "$W/home/.hermes/scripts/memory-diff.sh"
+  chmod +x "$W/home/.hermes/scripts/memory-diff.sh"
   git init -q -b main "$W/seed" && echo a > "$W/seed/a" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm seed
   git clone -q "$W/seed" "$W/home/dev/ticket-bay"
   echo b > "$W/seed/b" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm upstream
 }
-run() { out=$(HOME=$W/home bash "$SCRIPT" 2>&1); }
+run() { out=$(HOME=$W/home SKILLS_STATUS=$W/status bash "$SCRIPT" 2>&1); }
 check() { local name=$1; shift; if "$@"; then echo "ok   $name"; pass=$((pass + 1)); else echo "FAIL $name"; echo "     output: ${out:-<none>}"; fail=$((fail + 1)); fi; }
 says() { grep -qF -- "$1" <<<"$out"; }
 
@@ -27,8 +29,18 @@ git -C "$R" config core.fsmonitor "touch $W/fsmonitor-ran"
 run
 check "nothing planted in the clone's .git runs on the host" eval '[ ! -e "$W/hook-ran" ] && [ ! -e "$W/fsmonitor-ran" ]'
 
+setup; echo ok > "$W/status"; run
+check "silent when the skills update is ok" eval '[ -z "$out" ]'
+
 setup; run
 check "a missing skills status is reported" says "skills update status missing"
+
+setup; echo "blocked: guard findings" > "$W/status"; run
+check "a failed skills update is reported" says "blocked: guard findings"
+
+# memory-diff is its own hourly job; a second run here would race it on the snapshot's lock.
+setup; echo ok > "$W/status"; run
+check "memory-diff is not run from here" eval '! says "memory-diff ran"'
 
 echo "$pass passed, $fail failed"
 [ "$fail" = 0 ]

@@ -76,3 +76,11 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 - `pull-repos.sh` no longer calls it; memory-diff gets its own Hermes no-agent job, like
   squid-denials. pull-repos still reports the skills update daily at 07:55.
 - Not deployed yet: the VPS change (new hourly job, the two scripts copied) waits for the owner's yes.
+- `/code-review` (default effort, all findings) found 11. Fixed, each with a test that fails on the
+  old scripts: the undo and full-diff lines named `HEAD`, which moves on every hour, so they now name
+  the run's own commit; a lock left by a killed run would fail every later run, so one older than 30
+  minutes is removed; pull-repos's status path can be pointed at a test file; a test checks that
+  pull-repos no longer runs memory-diff. `host.md` says the two scripts and the hourly job deploy
+  together, and the kill switch says the undo line names its own snapshot.
+- Not fixed: the docs say hourly before the VPS does; this PR merges after the deploy. The test that
+  planted hooks don't run is kept as a guard, though pull-repos no longer runs git at all.
