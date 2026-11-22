@@ -143,3 +143,18 @@
 - Left as they are: two code lines that name the skills checkout, its path in `skills-update.sh`
   and the guard's source label in `scan-diff.py`. Changing them means renaming the folder on the VPS
   and redeploying, the owner's call. The values also stay in this repo's public history.
+
+## 2026-11-23: step 4, ADRs
+
+- The owner picked all six candidates and added a seventh: the host scripts that run before the bug
+  loop and PR triage and decide whether the agent wakes. Seven ADRs in `docs/adr/`, same shape as
+  Telma's (Status, Context, Decision, Consequences), and a README that links Telma's ADRs 2 and 3
+  for the split and one repo per agent.
+- The owner also moved memory-diff to hourly (PR #14, hardening devlog). ADR 5 says hourly, so this
+  branch is stacked on #14 and merges after it.
+- ADR 7 says what the pre-run scripts check: that there is work (an email, an open PR). They don't
+  read the email for injections; the sandbox's walls contain it.
+- Dates from Telma's hardening devlog at `pre-split`: the App and the pre-run scripts are step 1
+  (2026-11-18), squid step 3, skills and memory step 4 (2026-11-18), security patches 2026-11-19,
+  demo bugs on `main` 2026-11-22.
+- Left out of ADR 4: which Dependabot alerts are open. It would go stale.
