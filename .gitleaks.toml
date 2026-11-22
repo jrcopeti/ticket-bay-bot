@@ -1,5 +1,5 @@
 # Secret scan for this repo: gitleaks' default rules, plus the personal data
-# AGENTS.md bans (email addresses, IPs, Discord IDs and webhooks, Tailscale hosts).
+# AGENTS.md bans (email addresses, IPs, Discord IDs and webhooks, Tailscale hosts, home paths).
 title = "ticket-bay-bot"
 
 [extend]
@@ -36,3 +36,13 @@ regex = '''https://(?:ptb\.|canary\.)?discord(?:app)?\.com/api/webhooks/\d+/[\w-
 id = "tailscale-host"
 description = "Tailscale MagicDNS hostname"
 regex = '''\b[\w-]+\.[\w-]+\.ts\.net\b'''
+
+[[rules]]
+id = "home-path"
+description = "Local home path, which names a user (/Users/<name>, /home/<name>)"
+# The secret is the user name: gitleaks' default allowlist skips any secret that starts with /home/.
+regex = '''(?:^|[^\w$.-])/(?:Users|home)/([\w.-]+)'''
+secretGroup = 1
+[[rules.allowlists]]
+# The VPS's agent users are public: this repo documents them.
+regexes = ['''^(?:Shared|ticket-bay-bot|telma)$''']

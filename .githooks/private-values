@@ -1,0 +1,29 @@
+#!/bin/sh
+# Fails if the staged changes (or, with --message <file>, a commit message) contain a value from the
+# owner's untracked list: private repo names and other exact values no regex in .gitleaks.toml knows.
+# The list is .git/info/private-values, one value per line, # for comments; it never lands in the repo.
+list="$(git rev-parse --git-common-dir)/info/private-values"
+if [ ! -f "$list" ]; then
+  echo "private-values: no list at $list, private values not checked" >&2
+  exit 0
+fi
+values=$(mktemp) && trap 'rm -f "$values"' EXIT
+grep -vE '^[[:space:]]*(#|$)' "$list" > "$values"
+[ -s "$values" ] || exit 0
+if [ "$1" = --message ]; then
+  if grep -v '^#' "$2" | grep -qiF -f "$values"; then
+    echo "private-values: the commit message has a value from $list" >&2
+    exit 1
+  fi
+  exit 0
+fi
+files=$(mktemp) && trap 'rm -f "$values" "$files"' EXIT
+git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' > "$files"
+bad=0
+while IFS= read -r f; do
+  if { echo "$f"; git diff --cached -U0 --no-color -- "$f" | grep '^+' | grep -v '^+++'; } | grep -qiF -f "$values"; then
+    echo "private-values: $f adds a value from $list" >&2
+    bad=1
+  fi
+done < "$files"
+exit $bad
