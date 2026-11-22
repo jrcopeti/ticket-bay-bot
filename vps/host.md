@@ -29,6 +29,7 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
 
 The deployed `support-inbox` differs from this copy in one line: it holds the bug inbox address.
+The deployed `memory-diff.sh` differs in comments only.
 
 ## Rules for the whole host
 
@@ -42,4 +43,4 @@ These rules are the same, word for word, in both repos.
   [Telma's](https://github.com/jrcopeti/telma/blob/main/vps/telma/kill-switch.md) kill switches, then
   rebuild the VPS.
 - **Scripts are deployed by hand.** Nothing on the host clones either repo. A change here reaches the
-  VPS only when José says yes and copies it.
+  VPS only when the owner says yes and copies it.

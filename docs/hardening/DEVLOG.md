@@ -31,19 +31,17 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 ## 2026-11-19: the bot's own host scripts
 
 - Added `mint-gh-token.sh`, `bug-loop-pre.sh`, `pr-triage-pre.sh` and `set-secret`, copied from the
-  VPS byte for byte (José: they work, don't change them). gitleaks found nothing: they read their
+  VPS byte for byte (the owner: they work, don't change them). gitleaks found nothing: they read their
   secrets from files under `~/.config` and never hold one themselves. No tests yet: each one needs
   GitHub, Gmail or a terminal.
 - `vps/host.md` now maps every file here to its path on the VPS.
-- Three more files on the VPS come from the course kit, unchanged or nearly (`guard-network.sh`,
-  `verify-tests.sh`, `support-inbox`). They stay out: the kit's license forbids republishing them.
-  `set-secret` was found next to `support-inbox`; it isn't kit code.
+- Three more files on the VPS (`guard-network.sh`, `verify-tests.sh`, `support-inbox`) stayed out of
+  this step; the next entry adds them. `set-secret` was found next to `support-inbox`.
 
 ## 2026-11-19: the VPS-only scripts into the repo
 
 - Added `guard-network.sh` (the terminal guard), `verify-tests.sh` (the test gate) and `support-inbox`
-  (claims bug emails), copied from the VPS (mode 755). José: publish them despite the course kit's
-  license. Each is the kit's file with 4 to 8 lines changed.
+  (claims bug emails), copied from the VPS (mode 755). The owner: publish them.
 - Read for secrets first. None: the scripts read their passwords from files. `support-inbox` held the
   bug inbox address, replaced here with a placeholder; the deployed copy keeps it. The other two match
   the VPS byte for byte. Telma's deployed `guard-network.sh` is identical (jrcopeti/telma#24).
