@@ -7,7 +7,8 @@
 | `docs/showcase-plan` | plan | PR #9 merged |
 | `ci/personal-data-net` | 1 | PR #10 merged |
 | `docs/threat-model` | 2 | PR #11 merged |
-| `ci/private-values-followup` | 1 | PR open |
+| `ci/private-values-followup` | 1 | PR #12 merged |
+| `docs/before-after` | 3 | PR open |
 
 ## 2026-11-21: plan
 
@@ -143,3 +144,18 @@
 - Left as they are: two code lines that name the skills checkout, its path in `skills-update.sh`
   and the guard's source label in `scan-diff.py`. Changing them means renaming the folder on the VPS
   and redeploying, the owner's call. The values also stay in this repo's public history.
+
+## 2026-11-23: step 3, before/after table
+
+- `docs/before-after.md`, same shape as Telma's page, from the bot's side: legs per session, private
+  data, untrusted input, ways out, persistence, detection, what is still open. Rows from the brain's
+  parked bot rows, checked against Telma's audit-before, audit-after and injection suite at
+  `pre-split`.
+- Overlaps with Telma's page are written here too, from the bot's side (the owner's rule, 2026-11-20):
+  the split, the rotated GitHub token and mailbox password, keys host only, Discord the owner only,
+  no root cron, the kill switch.
+- Left out: the test gate (it ran before the split as well, so it has no before/after) and the chats
+  with the owner (the bot didn't exist before).
+- The mailbox row says only that the password was mounted in the sandbox before: the audit doesn't
+  say the sandbox read the inbox itself.
+- The skills repo is "the upstream skills repo", since its name is on the private-values list.
