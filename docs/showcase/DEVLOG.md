@@ -20,7 +20,7 @@
   in `memory-diff.sh`. The deployed `memory-diff.sh` already differed in its header comment; it now
   differs in one more comment line.
 - The owner asked for at least five bot PRs from planted bugs sent by email: demo bugs, now step 6,
-  with a `demo-bugs/` kit on the fork. Its candidate bugs come from the brain's demo-bug kit note and
+  with a `demo-bugs/` pack on the fork. Its candidate bugs come from the brain's demo-bug pack note and
   aren't checked against the code yet.
 - The ADR list is candidates only, from the hardening plan's Decisions; the owner picks.
 
@@ -34,12 +34,12 @@
   other email, and the owner ruled out switching the base for a demo session, then left the call to
   Claude: `main`. One base, PRs read "into main" on the fork's PR page, and security patches leave
   no demo branch to rebase. Cost: `main` carries the bugs; the fork's README section lists them.
-- The brain's demo-bug kit note was Telma's, from before the split. A ticket-bay-bot kit is captured
+- The brain's demo-bug pack note was Telma's, from before the split. A ticket-bay-bot pack is captured
   in the brain inbox (2026-11-22) and step 6 points to it. Step 3 points to the before/after rows in
   the brain's `sources/`, where triage moved them.
 - README step: dropped the `crafting-effective-readmes` skill; the brain's prose-docs guideline
   covers how the README is written.
-- `dmoka/ticket-bay` and `dmoka/skills` are out of the steps: TicketBay and the skills are the
+- The upstream TicketBay and skills repos are out of the steps: TicketBay and the skills are the
   owner's product now, and one sentence under the goal says they started as open source and get
   credited once in the README.
 - New step 1, personal-data net. `.gitleaks.toml` already had rules for emails, IPs, Discord IDs,
@@ -137,3 +137,9 @@
   stripping a PDF only appends an update, so the check would block or pass every one of them); a
   file name with a newline is split in two (no such names here); this devlog says where the listed
   values sit on `main` without naming them, so the owner can act on it.
+- The owner's call on the listed values already on `main`: reword them. Docs and comments now say
+  "the upstream skills repo", "a checkout in `/opt`" and "demo-bug pack". Three deployed scripts
+  now differ from these copies in a comment line (`vps/host.md` lists them).
+- Left as they are: two code lines that name the skills checkout, its path in `skills-update.sh`
+  and the guard's source label in `scan-diff.py`. Changing them means renaming the folder on the VPS
+  and redeploying, the owner's call. The values also stay in this repo's public history.

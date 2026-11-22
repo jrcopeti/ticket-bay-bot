@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Daily, as skills-sync: move the bot's dmoka/skills checkout to the newest upstream commit first seen
+# Daily, as skills-sync: move the bot's skills checkout to the newest upstream commit first seen
 # at least 7 days ago, unless the skills guard finds something in it the current checkout doesn't have.
 # The wait counts from our own fetch log, not commit dates, which the committer sets.
 # Both trees are scanned whole, as a fresh `git checkout` writes them in a throwaway clone (not
