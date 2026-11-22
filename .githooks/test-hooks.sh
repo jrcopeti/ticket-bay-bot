@@ -49,6 +49,27 @@ check "a list value with trailing space and CRLF still matches" eval 'says "a.md
 setup; echo "secret-repo" > "my notes.md"; commit
 check "a file name with a space is checked" eval 'says "my notes.md adds a value"'
 
+setup; echo "Secret-Repos, secret-repository and xsecret-repo" > a.md; commit "fix secret-repos"
+check "a value inside a longer word commits" eval '[ -z "$(git status --porcelain)" ]'
+
+setup; echo "the secret-repo, then (secret-repo)" > a.md; commit
+check "a value between punctuation is blocked" eval 'says "a.md adds a value"'
+
+setup; printf '@corp\na.b+c\n' >> .git/info/private-values; echo "handle jr@corp, ok" > a.md; commit
+check "a value that starts with punctuation is blocked inside a word" eval 'says "a.md adds a value"'
+
+setup; printf 'a.b+c\n' >> .git/info/private-values; echo "axb+c and aab+c" > a.md; commit
+check "regex characters in a value match only themselves" eval '[ -z "$(git status --porcelain)" ]'
+
+setup; git config diff.external false; echo "secret-repo" > a.md; commit
+check "an external diff tool doesn't hide the change" eval 'says "a.md adds a value"'
+
+setup; echo "secret-repo" > "a[1].md"; echo ok > a1.md; git add a1.md && git commit -qm x -n; echo ok2 > a1.md; commit
+check "a file name with glob characters is read literally" eval 'says "a[1].md adds a value" && ! says "a1.md adds"'
+
+setup; echo ok > a.md; git add a.md; out=$(git commit -q --cleanup=verbatim -m "$(printf 'fix\n# secret-repo')" 2>&1)
+check "a # line in the message is read too" eval 'says "commit message has a value"'
+
 setup; echo "secret-repo" > a.md; git add a.md && git commit -qm x -n; git rm -q a.md; commit
 check "removing a private value commits" eval '[ -z "$(git status --porcelain)" ]'
 
@@ -75,8 +96,15 @@ check "an image with GPS data is blocked" eval 'says "a b.png has metadata"'
 setup; printf 'version https://git-lfs.github.com/spec/v1\n' > a.png; commit
 check "an image exiftool can't read is blocked, and says why" eval 'says "can'"'"'t read a.png"'
 
-setup; base64 -d <<<"$PNG" > ./-icon.png; out=$("$HOOKS/image-metadata" -icon.png 2>&1)
-check "an image whose name starts with - is read as a file" eval '[ -z "$out" ]'
+setup; base64 -d <<<"$PNG" > ./-icon.png; out=$("$HOOKS/image-metadata" -icon.png 2>&1); rc=$?
+check "an image whose name starts with - is read as a file" eval '[ -z "$out" ] && [ $rc = 0 ]'
+
+setup; base64 -d <<<"$PNG" > a.png; exiftool -q -overwrite_original -Comment=x a.png; git add a.png && git commit -qm x -n
+base64 -d <<<"$PNG" > a.png; git add a.png && git commit -qm fix -n; out=$("$HOOKS/image-metadata" --history 2>&1)
+check "history: an image fixed in a later commit is still found" eval 'says "a.png (blob"'
+
+setup; base64 -d <<<"$PNG" > a.png; git add a.png && git commit -qm x -n; out=$("$HOOKS/image-metadata" --history 2>&1); rc=$?
+check "history: clean images pass" eval '[ -z "$out" ] && [ $rc = 0 ]'
 
 setup; base64 -d <<<"$PNG" > a.png; exiftool -q -overwrite_original -Comment=x a.png; git add a.png
 exiftool -q -all= -tagsfromfile @ -icc_profile -overwrite_original a.png >/dev/null 2>&1; out=$(git commit -qm x 2>&1)

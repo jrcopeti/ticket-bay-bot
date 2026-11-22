@@ -2,6 +2,7 @@
 # Fails if any image given has metadata left (EXIF, GPS, XMP, comments): stripping it would change the
 # file. The colour profile may stay. Fix: exiftool -all= -tagsfromfile @ -icc_profile -overwrite_original <file>
 # Usage: image-metadata <file>...   or, from the pre-commit hook, image-metadata --staged
+#        image-metadata --history: every image blob in every commit (CI), so a later fix can't hide one
 if ! command -v exiftool >/dev/null 2>&1; then
   echo "image-metadata: exiftool is not installed (brew install exiftool), images can't be checked" >&2
   exit 1
@@ -20,11 +21,16 @@ check() {  # $1: file to read, $2: name to report
     bad=1
   fi
 }
+images='\.(png|jpe?g|gif|webp|tiff?|heic)$'
 if [ "$1" = --staged ]; then
-  git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
-    grep -iE '\.(png|jpe?g|gif|webp|tiff?|heic)$' > "$tmp/list"
+  git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' | grep -iE "$images" > "$tmp/list"
   while IFS= read -r f; do
     git show ":$f" > "$tmp/blob" && check "$tmp/blob" "$f"
+  done < "$tmp/list"
+elif [ "$1" = --history ]; then
+  git rev-list --objects --all | grep -iE "$images" | sort -u -k1,1 > "$tmp/list"
+  while read -r sha f; do
+    git cat-file blob "$sha" > "$tmp/blob" && check "$tmp/blob" "$f (blob ${sha%"${sha#???????}"})"
   done < "$tmp/list"
 else
   for f in "$@"; do check "$f" "$f"; done

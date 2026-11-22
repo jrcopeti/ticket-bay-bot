@@ -1,3 +1,5 @@
 #!/bin/sh
-# A merge commit skips pre-commit, so the same checks run here.
+# A merge commit skips pre-commit, so the same checks run here. They read the merge against the
+# current branch, so lines the other branch brings are checked again: a list value already on main is
+# public, and worth the stop.
 exec "$(dirname "$0")/pre-commit"

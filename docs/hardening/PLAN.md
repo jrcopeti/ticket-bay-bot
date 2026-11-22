@@ -36,8 +36,8 @@ This repo was split from Telma's on 2026-11-19.
   2026-11-19, step 6's B9). The terminal guard blocks the plain ways (`hosts.yml`, `gh auth token`,
   `printenv`); a reworded command or the file tool gets past it. The token reaches the fork only and
   dies within the hour.
-- **Skills come from `dmoka/skills`, gated.** A `skills-sync` user owns the bot's copy in
-  `/opt/dmoka-skills`, which the sandbox mounts read-only. An upstream commit is taken after a 7-day
+- **Skills come from the upstream skills repo, gated.** A `skills-sync` user owns the bot's copy
+  in `/opt`, which the sandbox mounts read-only. An upstream commit is taken after a 7-day
   wait, and only if Hermes's skills guard (`/opt/hermes-guard`) finds nothing new. Hermes is pinned.
 - **The bot learns: memory and `skill_manage` on.** An injected run can save something every later
   run reads; that's accepted for the learning. A daily diff of its memory and skills goes to Discord,

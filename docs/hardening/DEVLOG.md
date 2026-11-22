@@ -50,7 +50,7 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 ## 2026-11-19: the sandbox Dockerfile into the repo
 
 - Added `vps/ticket-bay-bot/sandbox/Dockerfile`, byte for byte from `~/sandbox/` on the VPS. A second
-  checksum (jrcopeti/telma's repo-split devlog) found it in no repo. No secret; not course-kit code.
+  checksum (jrcopeti/telma's repo-split devlog) found it in no repo. No secret; not code from the course.
   It differs from Telma's in one line: an `AGENT_EMAIL` build arg.
 - Every deployed file now has a copy here or in Telma's repo. Differences: `memory-diff.sh` (comment
   lines) and `support-inbox` (the inbox address).

@@ -9,7 +9,7 @@ ticket-bay-bot shares one VPS with Telma. Telma's repo describes the same host f
 |---|---|
 | `ticket-bay-bot` | The bot: its own Hermes install (`~/.hermes/hermes-agent`), rootless Docker, linger on. Its sandbox reaches the internet only through the squid in [egress/](ticket-bay-bot/egress/). |
 | `ticket-bay-app` | TicketBay with seed data ([ticket-bay-app/](ticket-bay-app/)), rootless Docker, linger on. Built from a root-owned clone in `/opt/ticket-bay-app/src`, pinned to one commit. |
-| `skills-sync` | System user, no login. Owns `/opt/dmoka-skills`, which the bot reads, and updates it after a scan ([skills-sync/](skills-sync/)). |
+| `skills-sync` | System user, no login. Owns the skills checkout in `/opt`, which the bot reads, and updates it after a scan ([skills-sync/](skills-sync/)). |
 
 Telma runs as the user `agent`. Both agents' homes are `750`, so neither can read the other's files.
 
@@ -29,7 +29,8 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
 
 The deployed `support-inbox` differs from this copy in one line: it holds the bug inbox address.
-The deployed `memory-diff.sh` differs in comments only.
+The deployed `memory-diff.sh`, `pull-repos.sh`, `skills-update.sh` and `skills-pull.cron` differ in
+comments only.
 
 ## Rules for the whole host
 

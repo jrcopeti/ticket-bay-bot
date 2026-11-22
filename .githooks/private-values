@@ -2,6 +2,8 @@
 # Fails if the staged changes (or, with --message <file>, a commit message) contain a value from the
 # owner's untracked list: private repo names and other exact values no regex in .gitleaks.toml knows.
 # The list is .git/info/private-values, one value per line, # for comments; it never lands in the repo.
+# A value matches as a whole word, any case: "secret-repo" catches "Secret-Repo" but not "secret-repos".
+# An edge that is punctuation matches anywhere: "@corp" catches "jr@corp".
 list="$(git rev-parse --git-common-dir)/info/private-values"
 if [ ! -f "$list" ]; then
   echo "private-values: no list at $list, private values not checked" >&2
@@ -9,11 +11,14 @@ if [ ! -f "$list" ]; then
 fi
 values=$(mktemp) && trap 'rm -f "$values"' EXIT
 # Values are trimmed, so a trailing space or a CRLF line ending can't make one miss.
-sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$list" | grep -vE '^(#|$)' > "$values"
+# Each value becomes a regex: metacharacters escaped, a word boundary on each edge that is a word character.
+sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$list" | grep -vE '^(#|$)' |
+  sed -e 's#[][\\.*^$+?(){}|]#\\&#g' -e 's#^[[:alnum:]_]#(^|[^[:alnum:]_])&#' -e 's#[[:alnum:]_]$#&([^[:alnum:]_]|$)#' > "$values"
 [ -s "$values" ] || exit 0
 if [ "$1" = --message ]; then
-  # As git reads the message: comments out, and with commit -v, the diff below the scissors line out.
-  if sed '/ -\{24\} >8 -\{24\}$/,$d' "$2" | git stripspace --strip-comments | grep -qiF -f "$values"; then
+  # With commit -v, the diff below the scissors line isn't the message. # lines are read too: with
+  # --cleanup=verbatim, git keeps them.
+  if sed '/ -\{24\} >8 -\{24\}$/,$d' "$2" | grep -qiE -f "$values"; then
     echo "private-values: the commit message has a value from $list" >&2
     exit 1
   fi
@@ -23,7 +28,8 @@ files=$(mktemp) && trap 'rm -f "$values" "$files"' EXIT
 git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' > "$files"
 bad=0
 while IFS= read -r f; do
-  if { echo "$f"; git diff --cached -U0 --no-color -- "$f" | sed '1,/^@@/d' | grep '^+'; } | grep -qiF -f "$values"; then
+  if { echo "$f"; git --literal-pathspecs diff --cached --no-ext-diff --no-textconv -U0 --no-color -- "$f" |
+       sed '1,/^@@/d' | grep '^+'; } | grep -qiE -f "$values"; then
     echo "private-values: $f adds a value from $list" >&2
     bad=1
   fi

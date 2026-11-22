@@ -6,7 +6,8 @@
 |---|---|---|
 | `docs/showcase-plan` | plan | PR #9 merged |
 | `ci/personal-data-net` | 1 | PR #10 merged |
-| `docs/threat-model` | 2 | PR #11 open |
+| `docs/threat-model` | 2 | PR #11 merged |
+| `ci/private-values-followup` | 1 | PR open |
 
 ## 2026-11-21: plan
 
@@ -19,7 +20,7 @@
   in `memory-diff.sh`. The deployed `memory-diff.sh` already differed in its header comment; it now
   differs in one more comment line.
 - The owner asked for at least five bot PRs from planted bugs sent by email: demo bugs, now step 6,
-  with a `demo-bugs/` kit on the fork. Its candidate bugs come from the brain's demo-bug kit note and
+  with a `demo-bugs/` pack on the fork. Its candidate bugs come from the brain's demo-bug pack note and
   aren't checked against the code yet.
 - The ADR list is candidates only, from the hardening plan's Decisions; the owner picks.
 
@@ -33,12 +34,12 @@
   other email, and the owner ruled out switching the base for a demo session, then left the call to
   Claude: `main`. One base, PRs read "into main" on the fork's PR page, and security patches leave
   no demo branch to rebase. Cost: `main` carries the bugs; the fork's README section lists them.
-- The brain's demo-bug kit note was Telma's, from before the split. A ticket-bay-bot kit is captured
+- The brain's demo-bug pack note was Telma's, from before the split. A ticket-bay-bot pack is captured
   in the brain inbox (2026-11-22) and step 6 points to it. Step 3 points to the before/after rows in
   the brain's `sources/`, where triage moved them.
 - README step: dropped the `crafting-effective-readmes` skill; the brain's prose-docs guideline
   covers how the README is written.
-- `dmoka/ticket-bay` and `dmoka/skills` are out of the steps: TicketBay and the skills are the
+- The upstream TicketBay and skills repos are out of the steps: TicketBay and the skills are the
   owner's product now, and one sentence under the goal says they started as open source and get
   credited once in the README.
 - New step 1, personal-data net. `.gitleaks.toml` already had rules for emails, IPs, Discord IDs,
@@ -109,3 +110,36 @@
   the local list is a substring of it. The lens now says "off the server". The same match blocks
   the brain's docs guideline phrase "the local m…", so the list or the hook's substring match needs
   a look in PR #10.
+
+## 2026-11-22: step 1 follow-up, whole words
+
+- Found in step 2: a 3-character list value matched inside a common English word, so the hook
+  blocked ordinary prose, and a merge of `main` into a branch failed on lines `main` already had.
+- `private-values` now matches a value as a whole word, any case (`grep -w`): "secret-repo" still
+  catches "Secret-Repo" and "(secret-repo)", not "secret-repos". Two new tests. Cost: a value glued
+  to letters, digits or `_` slips through.
+- Merges still check the other branch's lines. Tried checking only lines new to both parents: git
+  gives `pre-merge-commit` no `MERGE_HEAD`, and parsing `GIT_REFLOG_ACTION` is fragile. A value that
+  arrives from `main` is already public, so the stop is worth it.
+- With whole words, three list values are still on `main` in tracked files: the skills repo's name
+  in two forms (`vps/`, the hardening plan, this devlog), and a 3-character one in the hardening
+  devlog, this plan and this devlog. Older lines, so no hook sees them. The owner decides: drop
+  them from the list, or reword those files.
+- `/code-review` (default effort, all findings) found 11, some in #10's code. Fixed, each with a test:
+  an external diff tool or textconv hid the staged lines (`--no-ext-diff --no-textconv`); glob
+  characters in a file name widened the diff (`--literal-pathspecs`); `grep -w` missed a value that
+  starts or ends with punctuation (`@corp` in `jr@corp`), so values are now regexes with a word
+  boundary only on a word-character edge; `#` lines in a `--cleanup=verbatim` message weren't read;
+  CI checked only the images at the tip, now every image blob in history (`image-metadata
+  --history`, full fetch); `AGENTS.md` said CI checks the private values; a test ignored the exit code.
+- Not fixed: merges keep re-checking the other branch (above; `--no-verify` there skips gitleaks too,
+  but CI still runs it); SVG and PDF stay out of the image check (exiftool can't write SVG, and
+  stripping a PDF only appends an update, so the check would block or pass every one of them); a
+  file name with a newline is split in two (no such names here); this devlog says where the listed
+  values sit on `main` without naming them, so the owner can act on it.
+- The owner's call on the listed values already on `main`: reword them. Docs and comments now say
+  "the upstream skills repo", "a checkout in `/opt`" and "demo-bug pack". Three deployed scripts
+  now differ from these copies in a comment line (`vps/host.md` lists them).
+- Left as they are: two code lines that name the skills checkout, its path in `skills-update.sh`
+  and the guard's source label in `scan-diff.py`. Changing them means renaming the folder on the VPS
+  and redeploying, the owner's call. The values also stay in this repo's public history.
