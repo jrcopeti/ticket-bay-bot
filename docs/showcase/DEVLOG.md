@@ -159,3 +159,8 @@
 - The mailbox row says only that the password was mounted in the sandbox before: the audit doesn't
   say the sandbox read the inbox itself.
 - The skills repo is "the upstream skills repo", since its name is on the private-values list.
+- `/code-review` (default effort, all findings) found 6, all fixed: the legs cells now name each
+  leg (untrusted input was missing from both columns), and the "after" count of 2 points to the
+  threat model, which counts it that way only if the 1-hour token doesn't count; "refused most" is
+  now "refused every case", as the threat model says; the test-gate risk joins What is still open;
+  a sentence re-wrapped; the skills pull is still a system cron job, now as `skills-sync`, not root.

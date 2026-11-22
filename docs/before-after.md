@@ -22,11 +22,12 @@ A session leaks data when it holds all three legs: private data, untrusted input
 
 | Session | Before | After |
 |---|---|---|
-| bug-loop (strangers' emails, unattended) | **3**: the owner's notes, a token for every repo, open network | 2: a 1-hour token for one fork, an allowlist of three hosts |
-| PR triage (anyone's PRs, unattended) | **3**: the same sandbox as the bug loop | 2: a 1-hour read-only token, the same allowlist |
+| bug-loop (unattended) | **3**: strangers' emails; the owner's notes and a token for every repo; open network | 2: strangers' emails; an allowlist of three hosts. Its only secret is its own 1-hour token for one fork |
+| PR triage (unattended) | **3**: anyone's PRs; the same sandbox as the bug loop | 2: anyone's PRs; the same allowlist. Its only secret is a 1-hour read-only token |
 
-Before, the weakest input reached the strongest data, and the injection came in through a bug email. After, the bot has nothing worth stealing but its own token, which reaches one
-fork and dies within the hour.
+Before, the weakest input reached the strongest data, and the injection came in through a bug email.
+After, the bot has nothing worth stealing but its own token, which reaches one fork and dies
+within the hour. The threat model counts that as two legs and says how the token could still leak.
 
 ## Private data
 
@@ -67,7 +68,7 @@ fork and dies within the hour.
 | `memory` | on for every job, and poisoned once | on, so the bot learns. A daily diff shows the owner what it saved |
 | `skill_manage` | on for every job | on; the same diff covers it |
 | `cronjob` | on: an injected run could schedule itself | off |
-| Root cron jobs | the skills pull | none |
+| Root cron jobs | the skills pull | none: the skills pull runs as `skills-sync` |
 
 ## Detection and response
 
@@ -86,5 +87,9 @@ The [threat model](threat-model.md#accepted-risks) says what was accepted and wh
 - An obedient model could paste its 1-hour token into a PR body.
 - Memory and skills stay writable, so an injection that lands persists until the owner reads the
   diff.
-- The model the bot runs refused most of the injection cases. The walls behind it were proved by
-  probes, not by a model that tried to get past them.
+- The test gate checks that the tests pass, not that they're still there. An email that gets the
+  bot to delete the tests that catch a bug, as the 2026-11-17 one asked, turns the gate green. The
+  owner's approval of every PR and the fork's CI are the wall.
+- The model the bot runs refused every injection case it was given. The one model that obeyed never
+  got as far as a commit, so the walls behind it were proved by probes, not by a model that tried to
+  get past them.
