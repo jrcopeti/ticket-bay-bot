@@ -8,10 +8,12 @@ if [ ! -f "$list" ]; then
   exit 0
 fi
 values=$(mktemp) && trap 'rm -f "$values"' EXIT
-grep -vE '^[[:space:]]*(#|$)' "$list" > "$values"
+# Values are trimmed, so a trailing space or a CRLF line ending can't make one miss.
+sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$list" | grep -vE '^(#|$)' > "$values"
 [ -s "$values" ] || exit 0
 if [ "$1" = --message ]; then
-  if grep -v '^#' "$2" | grep -qiF -f "$values"; then
+  # As git reads the message: comments out, and with commit -v, the diff below the scissors line out.
+  if sed '/ -\{24\} >8 -\{24\}$/,$d' "$2" | git stripspace --strip-comments | grep -qiF -f "$values"; then
     echo "private-values: the commit message has a value from $list" >&2
     exit 1
   fi
@@ -21,7 +23,7 @@ files=$(mktemp) && trap 'rm -f "$values" "$files"' EXIT
 git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' > "$files"
 bad=0
 while IFS= read -r f; do
-  if { echo "$f"; git diff --cached -U0 --no-color -- "$f" | grep '^+' | grep -v '^+++'; } | grep -qiF -f "$values"; then
+  if { echo "$f"; git diff --cached -U0 --no-color -- "$f" | sed '1,/^@@/d' | grep '^+'; } | grep -qiF -f "$values"; then
     echo "private-values: $f adds a value from $list" >&2
     bad=1
   fi

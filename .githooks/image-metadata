@@ -6,17 +6,21 @@ if ! command -v exiftool >/dev/null 2>&1; then
   echo "image-metadata: exiftool is not installed (brew install exiftool), images can't be checked" >&2
   exit 1
 fi
-strip() { exiftool -q -q -all= -tagsfromfile @ -icc_profile -o - "$1"; }
+tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 bad=0
 check() {  # $1: file to read, $2: name to report
-  if ! strip "$1" | cmp -s - "$1"; then
-    echo "image-metadata: $2 has metadata (EXIF, GPS, XMP or a comment), strip it first:" >&2
+  case $1 in -*) set -- "./$1" "$2" ;; esac  # a name exiftool would read as an option
+  # -all= also drops structural blocks such as a JPEG's JFIF header; stripping those is harmless.
+  if ! exiftool -q -q -all= -tagsfromfile @ -icc_profile -o - "$1" > "$tmp/stripped" 2>/dev/null; then
+    echo "image-metadata: exiftool can't read $2 (a Git LFS pointer or an unsupported format?), so it can't be checked" >&2
+    bad=1
+  elif ! cmp -s "$tmp/stripped" "$1"; then
+    echo "image-metadata: $2 has metadata exiftool strips (EXIF, GPS, XMP, a comment or a header block), strip it first:" >&2
     echo "  exiftool -all= -tagsfromfile @ -icc_profile -overwrite_original $2" >&2
     bad=1
   fi
 }
 if [ "$1" = --staged ]; then
-  tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
   git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
     grep -iE '\.(png|jpe?g|gif|webp|tiff?|heic)$' > "$tmp/list"
   while IFS= read -r f; do

@@ -41,7 +41,7 @@ regex = '''\b[\w-]+\.[\w-]+\.ts\.net\b'''
 id = "home-path"
 description = "Local home path, which names a user (/Users/<name>, /home/<name>)"
 # The secret is the user name: gitleaks' default allowlist skips any secret that starts with /home/.
-regex = '''(?:^|[^\w$.-])/(?:Users|home)/([\w.-]+)'''
+regex = '''(?:^|[^\w$}])/(?:Users|home)/([\w.-]+)'''
 secretGroup = 1
 [[rules.allowlists]]
 # The VPS's agent users are public: this repo documents them.
