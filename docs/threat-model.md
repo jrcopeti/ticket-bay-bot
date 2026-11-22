@@ -56,7 +56,6 @@ That agent also held the owner's notes. Splitting the bug loop off into this bot
 │ skills repo   │  │ │ the email, the token, skills: read-only │ │
 │ (7-day wait)  │  │ └──────────────────┬──────────────────────┘ │
 └───────────────┘  │ squid allowlist ◀──┘                        │
-                   │ Telma: another Linux user, homes 750        │
                    └───────┬─────────────────────────────────────┘
                            ▼
          github.com, api.github.com, registry.npmjs.org
@@ -141,4 +140,3 @@ agents' kill switches and a rebuild ([host.md](../vps/host.md)).
 - Root on the host. The bot's logs live on the same VPS, so root can erase the evidence.
 - Hermes itself, OpenRouter and the model providers, which see every email the bot reads.
 - GitHub and npm themselves.
-- Telma's own risks: her repo covers them.
