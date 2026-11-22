@@ -11,8 +11,6 @@ pass=0 fail=0
 
 setup() {
   rm -rf "$T/w" && W=$T/w && mkdir -p "$W/home/.hermes/scripts" "$W/home/dev"
-  printf '#!/bin/sh\necho memory-diff ran\n' > "$W/home/.hermes/scripts/memory-diff.sh"
-  chmod +x "$W/home/.hermes/scripts/memory-diff.sh"
   git init -q -b main "$W/seed" && echo a > "$W/seed/a" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm seed
   git clone -q "$W/seed" "$W/home/dev/ticket-bay"
   echo b > "$W/seed/b" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm upstream
@@ -30,7 +28,7 @@ run
 check "nothing planted in the clone's .git runs on the host" eval '[ ! -e "$W/hook-ran" ] && [ ! -e "$W/fsmonitor-ran" ]'
 
 setup; run
-check "memory-diff still runs" says "memory-diff ran"
+check "a missing skills status is reported" says "skills update status missing"
 
 echo "$pass passed, $fail failed"
 [ "$fail" = 0 ]

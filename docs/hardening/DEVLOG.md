@@ -67,3 +67,12 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 ## 2026-11-19: lessons 8.5 and 8.6 moved here
 
 - They sat in Open in Telma's frozen hardening plan. They run on the bot, so they're tracked here now.
+
+## 2026-11-23: memory-diff hourly
+
+- The owner's call: memory-diff runs every hour instead of once a day, so something planted in the
+  bot's memory or skills shows within the hour. It's a script, no model, and silent when nothing
+  changed, so an hourly run costs nothing.
+- `pull-repos.sh` no longer calls it; memory-diff gets its own Hermes no-agent job, like
+  squid-denials. pull-repos still reports the skills update daily at 07:55.
+- Not deployed yet: the VPS change (new hourly job, the two scripts copied) waits for the owner's yes.

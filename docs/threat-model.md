@@ -71,7 +71,7 @@ model provider and Discord; the sandbox can't.
 | bug-loop (09:00, unattended) | one bug email, a read-only file | a 1-hour token that can push to the fork | squid allowlist: GitHub and npm | 2, if the token doesn't count: it's the only secret, reaches the fork only and dies within the hour. How it could leak is in the accepted risks |
 | PR triage (08:00, unattended) | PRs and comments on the public fork | a 1-hour read-only token | the same allowlist | 2 |
 | Chats with the owner on Discord | the owner only | the same sandbox | the same allowlist | 1 |
-| pull-repos, squid-denials, skills-sync | memory-diff and the denials relay text an injection could have written | none | Discord, the owner's server | no model in the loop |
+| pull-repos, memory-diff, squid-denials, skills-sync | memory-diff and the denials relay text an injection could have written | none | Discord, the owner's server | no model in the loop |
 
 No session holds private data worth the name. The bug loop comes closest: its one secret is its
 own 1-hour token, and the [accepted risks](#accepted-risks) say how that could leak.
@@ -87,7 +87,7 @@ own 1-hour token, and the [accepted risks](#accepted-risks) say how that could l
 | 5 | A shell command dumps the environment or reads the token file | the token is the only secret in the sandbox. A terminal guard also blocks `printenv`, `gh auth token` and the token file, but it's a regex on one tool | private data, partly | see accepted risks: a reworded command or the file tool gets past the guard |
 | 6 | An email asks for a customer's orders | TicketBay's MCP server is connected with no key, and the bot's tool list leaves out `my_orders` | private data | B8: the four tools it has return events, prices and docs |
 | 7 | An email tells it to schedule a job that runs again tomorrow | the `cronjob` and `code_execution` toolsets are off, and a job can't turn them back on | the unattended path | B6: no tool; the job list didn't change |
-| 8 | An email saves itself to memory or a skill and comes back every run | none: memory and `skill_manage` stay on so the bot learns. A daily diff shows the owner what it saved, with a line to undo it | detection only | B5: the model refused, so the diff had nothing to show. [CI tests](../vps/ticket-bay-bot/test-memory-diff.sh) |
+| 8 | An email saves itself to memory or a skill and comes back every run | none: memory and `skill_manage` stay on so the bot learns. An hourly diff shows the owner what it saved, with a line to undo it | detection only | B5: the model refused, so the diff had nothing to show. [CI tests](../vps/ticket-bay-bot/test-memory-diff.sh) |
 | 9 | A PR on the fork says it's approved and asks triage to merge it or paste the token | triage gets a read-only token; the ruleset on `main` | the path to `main` | B7 not run: it needs a second GitHub account. The ruleset was checked instead |
 | 10 | An upstream commit to the skills repo plants a bad skill | a no-login `skills-sync` user takes a commit only after 7 days and only if Hermes's skills guard finds nothing new; the bot mounts the skills read-only | untrusted input | [CI tests](../vps/skills-sync/test-skills-update.sh); no real update or block seen yet |
 | 11 | An npm package runs code when it's installed | install scripts are off (`NPM_CONFIG_IGNORE_SCRIPTS=true` in the sandbox's environment); the guard makes npm run by name, so Hermes's package scanner sees it | untrusted input | config on the VPS only; the setting isn't in this repo yet |
@@ -109,7 +109,7 @@ They ran on 2026-11-19, when the bot still lived in Telma's repo.
   a reworded command or the file tool gets past it. The token reaches the fork only and dies within
   the hour. Whether GitHub revokes a leaked App token on its own is still unanswered.
 - **Memory and its own skills stay writable.** An injection that lands can persist until the owner
-  reads the next day's diff.
+  reads the diff, which is posted within the hour.
 - **The test gate checks that the tests pass, not that they're still there.** An email that gets the
   bot to delete the tests that catch a bug turns the gate green. The owner's approval of every PR is
   the wall for that, with the fork's CI behind it; the ruleset makes sure nothing reaches `main`
@@ -123,8 +123,8 @@ They ran on 2026-11-19, when the bot still lived in Telma's repo.
 | Signal | Where it goes | What it means |
 |---|---|---|
 | `🚫 squid blocked` | the ticket-bay channel, within 10 minutes | something in the sandbox tried a host off the allowlist: in a bug-loop or triage run, most likely an injection phoning home |
-| memory-diff | the ticket-bay channel, daily at 07:55 | what the bot saved to memory or skills, with the line that undoes it |
-| skills update | the same post | a skills commit was taken, blocked by the guard, or the fetch failed |
+| memory-diff | the ticket-bay channel, hourly, silent when nothing changed | what the bot saved to memory or skills, with the line that undoes it |
+| skills update | the ticket-bay channel, daily at 07:55 | a skills commit was taken, blocked by the guard, or the fetch failed |
 | `🎫 Picked up a bug report` | the ticket-bay channel | which email a run claimed |
 | test gate log | `verify-tests.log` on the host | every green or red verdict on a bug fix |
 

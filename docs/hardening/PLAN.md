@@ -40,7 +40,7 @@ This repo was split from Telma's on 2026-11-19.
   in `/opt`, which the sandbox mounts read-only. An upstream commit is taken after a 7-day
   wait, and only if Hermes's skills guard (`/opt/hermes-guard`) finds nothing new. Hermes is pinned.
 - **The bot learns: memory and `skill_manage` on.** An injected run can save something every later
-  run reads; that's accepted for the learning. A daily diff of its memory and skills goes to Discord,
+  run reads; that's accepted for the learning. An hourly diff of its memory and skills goes to Discord,
   and the owner undoes what looks planted.
 - **The ticket-bay fork gets security patches, not Renovate** (the owner, 2026-11-19). Upstream owns its
   dependency versions. A Dependabot alert on what the VPS runs is fixed on the fork's `main` with the
