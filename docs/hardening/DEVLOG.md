@@ -91,3 +91,21 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   memory-diff, which the hourly job has usually run already. `host.md` describes the setup instead
   of saying "not deployed"; the showcase plan's known VPS differences match it. The pull-repos
   tests clone only where the hook test needs it.
+## 2026-11-23: revoke the token when the run ends
+
+- The owner, reviewing the before/after page: "dies within the hour" reads as harmless only because
+  the fork is a demo; on a real repo an hour of write access is plenty. Options weighed: the host
+  pushes and opens the PR, so the sandbox holds no token (about one PR of code plus a deploy), or
+  revoke the token when the run ends. The owner's call: revoking is enough.
+- Checked first: `mint-gh-token.sh` already narrows each token to the fork and to `contents` and
+  `pull_requests` (read for triage), with no `workflows`.
+- `revoke-gh-token.sh`, a Hermes `on_session_end` shell hook (in `VALID_HOOKS`; `turn_finalizer`
+  fires it after every turn, failed or interrupted too). It acts only when `extra.platform` is
+  `cron` (`cron/scheduler.py` sets it): a chat turn ending mid-run would kill the job's token. It
+  truncates `~/.config/gh/hosts.yml` (the sandbox mounts the folder read-only), then sends
+  `DELETE /installation/token` with the token on stdin, not argv. 401 counts as done.
+- Gap found: a PR triage run with no open PR never starts the agent, so no session ends and the
+  hook can't fire. `pr-triage-pre.sh` now calls the hook itself before it skips. The bug loop mints
+  only after it has claimed an email, so its skips hold no token.
+- Not deployed yet: the hook, the new `pr-triage-pre.sh` and the `hooks:` entry wait for the owner's
+  yes (`host.md` has the line).

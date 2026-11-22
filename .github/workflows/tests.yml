@@ -39,6 +39,16 @@ jobs:
       - name: Test ticket-bay-bot's daily report
         run: bash vps/ticket-bay-bot/test-pull-repos.sh
 
+  revoke-gh-token:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test ticket-bay-bot's token revoke hook
+        run: bash vps/ticket-bay-bot/test-revoke-gh-token.sh
+
   squid-denials:
     runs-on: ubuntu-24.04
     steps:

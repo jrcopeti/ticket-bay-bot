@@ -5,4 +5,7 @@ set -euo pipefail
 ~/.hermes/scripts/mint-gh-token.sh read
 open=$(gh pr list --repo jrcopeti/ticket-bay --state open --json number --jq length)
 # Hermes skips the agent when the script prints nothing, so say what is waiting.
-if [ "$open" -gt 0 ]; then echo "OPEN PULL REQUESTS: $open"; else echo '{"wakeAgent": false}'; fi
+if [ "$open" -gt 0 ]; then echo "OPEN PULL REQUESTS: $open"; exit 0; fi
+# A skipped run ends no session, so the revoke hook wouldn't fire: revoke here.
+echo '{"extra": {"platform": "cron"}}' | ~/.hermes/agent-hooks/revoke-gh-token.sh || true
+echo '{"wakeAgent": false}'

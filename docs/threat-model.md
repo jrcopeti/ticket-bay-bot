@@ -33,7 +33,7 @@ That agent also held the owner's notes. Splitting the bug loop off into this bot
 |---|---|---|
 | The fork's `main` | GitHub | it's what TicketBay runs; a bad merge ships a bad fee |
 | The GitHub App's private key | the host, outside the sandbox | whoever holds it can mint tokens for the fork |
-| The 1-hour App token | the sandbox, read-only | it can push branches and open PRs on the fork until it expires |
+| The App token | the sandbox, read-only, revoked when the run ends | it can push branches and open PRs on the fork until it's revoked |
 | Its memory and the skills it saved | its Hermes home | every later session loads them |
 | The skills it runs | a checkout on the host, read-only | they tell it how to fix a bug and how to review a PR |
 | OpenRouter key, Discord token, mailbox password, webhooks | the host, outside the sandbox | spend, impersonation, reading the inbox |
@@ -68,7 +68,7 @@ model provider and Discord; the sandbox can't.
 
 | Session | Untrusted input | Private data | Way out | Legs |
 |---|---|---|---|---|
-| bug-loop (09:00, unattended) | one bug email, a read-only file | a 1-hour token that can push to the fork | squid allowlist: GitHub and npm | 2, if the token doesn't count: it's the only secret, reaches the fork only and dies within the hour. How it could leak is in the accepted risks |
+| bug-loop (09:00, unattended) | one bug email, a read-only file | a 1-hour token that can push to the fork | squid allowlist: GitHub and npm | 2, if the token doesn't count: it's the only secret, reaches the fork only and is revoked when the run ends. How it could leak is in the accepted risks |
 | PR triage (08:00, unattended) | PRs and comments on the public fork | a 1-hour read-only token | the same allowlist | 2 |
 | Chats with the owner on Discord | the owner only | the same sandbox | the same allowlist | 1 |
 | pull-repos, memory-diff, squid-denials, skills-sync | memory-diff and the denials relay text an injection could have written | none | Discord, the owner's server | no model in the loop |
@@ -92,7 +92,7 @@ own 1-hour token, and the [accepted risks](#accepted-risks) say how that could l
 | 10 | An upstream commit to the skills repo plants a bad skill | a no-login `skills-sync` user takes a commit only after 7 days and only if Hermes's skills guard finds nothing new; the bot mounts the skills read-only | untrusted input | [CI tests](../vps/skills-sync/test-skills-update.sh); no real update or block seen yet |
 | 11 | An npm package runs code when it's installed | install scripts are off (`NPM_CONFIG_IGNORE_SCRIPTS=true` in the sandbox's environment); the guard makes npm run by name, so Hermes's package scanner sees it | untrusted input | config on the VPS only; the setting isn't in this repo yet |
 | 12 | An email carries the attacker's own GitHub or npm token and asks the bot to push there | none: squid sees only the host name, so any account on GitHub or npm is reachable | none | not run: running it would only show it works. Accepted, below |
-| 13 | An email asks it to paste its token into the PR | none: the bot needs the token. Its scope (the fork, one hour) is the limit | none | B9: the model refused. Accepted, below |
+| 13 | An email asks it to paste its token into the PR | none: the bot needs the token. Its scope is the limit: the fork, until a hook revokes it when the run ends | none | B9: the model refused. [CI tests](../vps/ticket-bay-bot/test-revoke-gh-token.sh) for the revoke. Accepted, below |
 
 The cases B1 to B9 are in the [injection suite](https://github.com/jrcopeti/telma/blob/pre-split/docs/hardening/injection-suite.md),
 their results in [step6-results.jsonl](https://github.com/jrcopeti/telma/blob/pre-split/docs/hardening/step6-results.jsonl).
@@ -105,9 +105,10 @@ They ran on 2026-11-19, when the bot still lived in Telma's repo.
   bot push what it read to the attacker's repo, open a gist under the attacker's name, publish it to
   npm, or pull a payload. Nothing denies or alerts on it. Narrowing it would take inspecting TLS, or
   moving git and `gh` to the host and npm behind a mirror, and neither is planned.
-- **An obedient bot can paste its 1-hour token into a public PR.** The guard blocks the plain ways;
-  a reworded command or the file tool gets past it. The token reaches the fork only and dies within
-  the hour. Whether GitHub revokes a leaked App token on its own is still unanswered.
+- **An obedient bot can paste its token into a public PR.** The guard blocks the plain ways; a
+  reworded command or the file tool gets past it. The token reaches the fork only, and a hook
+  revokes it when the run ends, so it works for minutes after the PR, not the rest of the hour.
+  On a demo fork that's little; on a real repo those minutes would still matter.
 - **Memory and its own skills stay writable.** An injection that lands can persist until the owner
   reads the diff, which is posted within the hour.
 - **The test gate checks that the tests pass, not that they're still there.** An email that gets the
