@@ -24,9 +24,9 @@
 ## 2026-11-22: plan review
 
 - The owner decided the Open items: the candidate numbers go in the README; the old fork PRs (#11
-  to #13, #16) are closed and the README links only the new demo-bug PRs; the demo PRs stay open as
-  evidence, never merged.
-- "How many were merged" is dropped from the numbers: the demo PRs never merge, so it would read 0.
+  to #13, #16) are closed and the README links only the new demo-bug PRs.
+- "How many were merged" would read 0 with every demo PR open, so the owner raised the demo to
+  eight bugs: three PRs merged, five left open. The number stays.
 - Where the bugs go, first `demo`, then `main`. Review found a `demo` base would also catch every
   other email, and the owner ruled out switching the base for a demo session, then left the call to
   Claude: `main`. One base, PRs read "into main" on the fork's PR page, and security patches leave
