@@ -128,5 +128,6 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   trailing spaces and comments are stripped; both pre-scripts set the revoke trap before the mint.
   The diagram puts the revoke with the Hermes hooks.
 - Not fixed, now with a better outcome: triage running past 09:00. The bug loop's mint revokes
-  triage's token first, so triage fails and never holds the write token. The 09:00 run's hook
-  doesn't touch triage, which by then holds no token.
+  triage's token first, so triage fails and never holds the write token. Its hook then fires and
+  revokes the bug loop's new token too, so that run fails as well: both fail closed, and the email
+  stays claimed (the `bug-loop-pre.sh` gap in the showcase devlog).
