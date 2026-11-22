@@ -35,8 +35,8 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   secrets from files under `~/.config` and never hold one themselves. No tests yet: each one needs
   GitHub, Gmail or a terminal.
 - `vps/host.md` now maps every file here to its path on the VPS.
-- Three more files on the VPS. (`guard-network.sh`,
-  `verify-tests.sh`, `support-inbox`). They stay out of repo currently. `set-secret` was found next to `support-inbox`
+- Three more files on the VPS (`guard-network.sh`, `verify-tests.sh`, `support-inbox`) stayed out of
+  this step; the next entry adds them. `set-secret` was found next to `support-inbox`.
 
 ## 2026-11-19: the VPS-only scripts into the repo
 
