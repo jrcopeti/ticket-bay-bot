@@ -49,6 +49,12 @@ check "a list value with trailing space and CRLF still matches" eval 'says "a.md
 setup; echo "secret-repo" > "my notes.md"; commit
 check "a file name with a space is checked" eval 'says "my notes.md adds a value"'
 
+setup; echo "Secret-Repos, secret-repository and xsecret-repo" > a.md; commit "fix secret-repos"
+check "a value inside a longer word commits" eval '[ -z "$(git status --porcelain)" ]'
+
+setup; echo "the secret-repo, then (secret-repo)" > a.md; commit
+check "a value between punctuation is blocked" eval 'says "a.md adds a value"'
+
 setup; echo "secret-repo" > a.md; git add a.md && git commit -qm x -n; git rm -q a.md; commit
 check "removing a private value commits" eval '[ -z "$(git status --porcelain)" ]'
 

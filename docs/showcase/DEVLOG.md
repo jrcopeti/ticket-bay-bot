@@ -6,7 +6,8 @@
 |---|---|---|
 | `docs/showcase-plan` | plan | PR #9 merged |
 | `ci/personal-data-net` | 1 | PR #10 merged |
-| `docs/threat-model` | 2 | PR #11 open |
+| `docs/threat-model` | 2 | PR #11 merged |
+| `ci/private-values-followup` | 1 | PR open |
 
 ## 2026-11-21: plan
 
@@ -109,3 +110,18 @@
   the local list is a substring of it. The lens now says "off the server". The same match blocks
   the brain's docs guideline phrase "the local m…", so the list or the hook's substring match needs
   a look in PR #10.
+
+## 2026-11-22: step 1 follow-up, whole words
+
+- Found in step 2: a 3-character list value matched inside a common English word, so the hook
+  blocked ordinary prose, and a merge of `main` into a branch failed on lines `main` already had.
+- `private-values` now matches a value as a whole word, any case (`grep -w`): "secret-repo" still
+  catches "Secret-Repo" and "(secret-repo)", not "secret-repos". Two new tests. Cost: a value glued
+  to letters, digits or `_` slips through.
+- Merges still check the other branch's lines. Tried checking only lines new to both parents: git
+  gives `pre-merge-commit` no `MERGE_HEAD`, and parsing `GIT_REFLOG_ACTION` is fragile. A value that
+  arrives from `main` is already public, so the stop is worth it.
+- With whole words, three list values are still on `main` in tracked files: the skills repo's name
+  in two forms (`vps/`, the hardening plan, this devlog), and a 3-character one in the hardening
+  devlog, this plan and this devlog. Older lines, so no hook sees them. The owner decides: drop
+  them from the list, or reword those files.
