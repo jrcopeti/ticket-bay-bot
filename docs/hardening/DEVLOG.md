@@ -109,3 +109,14 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   only after it has claimed an email, so its skips hold no token.
 - Not deployed yet: the hook, the new `pr-triage-pre.sh` and the `hooks:` entry wait for the owner's
   yes (`host.md` has the line).
+- `/code-review` (default effort, all findings) found 11. Checked on the VPS's Hermes first: a cron
+  run is one `run_conversation` call and pre_verify nudges stay in its turn, so the hook fires once
+  per run; a model-unreachable re-run is a new job run that mints again. Fixed, with tests:
+  `pr-triage-pre.sh` revokes on every exit that doesn't wake the agent (a failing `gh` too), with a
+  `--now` mode instead of a faked payload; the hook revokes before it empties the login and keeps
+  an unrevoked token in `~/.config/github-app/unrevoked-token` for the owner; no API URL from the
+  environment; first `oauth_token` only, quotes stripped; only a `ghs_` token is sent, so a 401
+  means it's dead; the threat model's other "1-hour" cells; the open GitHub question is back.
+- Not fixed: one `hosts.yml` for both jobs, so a cron run that ends while another runs revokes its
+  token. Triage (08:00) and bug-loop (09:00) don't overlap; a run started by hand at the same time
+  could. The jq-missing branch has no test (jq is on every host path the tests use).
