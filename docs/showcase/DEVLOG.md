@@ -90,7 +90,10 @@
 - Found while writing: the test gate goes green if an email gets the bot to delete the tests that
   catch the bug (B1's obedient run did exactly that, before committing). Listed as an accepted risk;
   the owner's approval and the fork's CI are the wall.
-- Branched off `main` while step 1 (PR #10) was open; `main` merged in after #10, both entries kept.
+- Branched off `main` while step 1 (PR #10) was open, then rebuilt as one commit on `main` after #10
+  merged. A merge of `main` didn't work: `pre-merge-commit` diffs against the branch, so it flagged
+  lines that came from `main` (`test-hooks.sh`, step 1's entry here) as new. Step 1's hooks need a
+  follow-up for that and for the 3-character list value below.
 - `/code-review` (default effort, all findings) found 7, all fixed: the skills repo's name and path
   are on the private-values list, so the doc says "the skills repo" (they're still in `vps/host.md`
   and older docs, where step 1's hook doesn't look at old lines); the "no session holds three legs"
