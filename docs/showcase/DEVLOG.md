@@ -164,3 +164,6 @@
   threat model, which counts it that way only if the 1-hour token doesn't count; "refused most" is
   now "refused every case", as the threat model says; the test-gate risk joins What is still open;
   a sentence re-wrapped; the skills pull is still a system cron job, now as `skills-sync`, not root.
+- The owner, in the PR: "nothing worth stealing but its own token" plays down an hour of write
+  access, harmless only because the fork is a demo. Reworded; the owner's fix is to revoke the token
+  when each run ends (hardening plan).

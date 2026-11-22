@@ -26,8 +26,10 @@ A session leaks data when it holds all three legs: private data, untrusted input
 | PR triage (unattended) | **3**: anyone's PRs; the same sandbox as the bug loop | 2: anyone's PRs; the same allowlist. Its only secret is a 1-hour read-only token |
 
 Before, the weakest input reached the strongest data, and the injection came in through a bug email.
-After, the bot has nothing worth stealing but its own token, which reaches one fork and dies
-within the hour. The threat model counts that as two legs and says how the token could still leak.
+After, the only secret in the sandbox is the bot's own write token for one repo. On this demo fork
+that's little. On a real repo an hour of write access is plenty, so the token is to be revoked as
+soon as each run ends ([hardening plan](hardening/PLAN.md)). The threat model says how it could
+still leak.
 
 ## Private data
 
