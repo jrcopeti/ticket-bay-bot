@@ -46,10 +46,11 @@ That agent also held the owner's notes. Splitting the bug loop off into this bot
  untrusted          VPS, user "ticket-bay-bot"                          trusted
 ┌───────────────┐  ┌─────────────────────────────────────────────┐  ┌──────────────┐
 │ bug emails    │─▶│ host scripts: claim one email, mint a       │◀─│ the owner    │
-│ (anyone)      │  │ token, revoke it, post denials and diffs    │  │ (Discord,    │
+│ (anyone)      │  │ token, post denials and memory diffs        │  │ (Discord,    │
 ├───────────────┤  │                                             │  │  allowlisted)│
 │ PRs on the    │  │ Hermes (host): terminal, file, skills,      │  └──────────────┘
-│ fork (anyone) │  │ memory, todo; hooks: guard, test gate       │
+│ fork (anyone) │  │ memory, todo; hooks: guard, test gate,      │
+│               │  │ token revoke at the end of each run         │
 ├───────────────┤  │ ┌───────────────── sandbox ───────────────┐ │
 │ npm packages  │  │ │ rootless Docker, internal network only  │ │
 ├───────────────┤  │ │ the fork's clone: read-write            │ │
@@ -109,7 +110,7 @@ They ran on 2026-11-19, when the bot still lived in Telma's repo.
   reworded command or the file tool gets past it. The token reaches the fork only, and a hook
   revokes it when the run ends, so it works for minutes after the PR, not the rest of the hour.
   On a demo fork that's little; on a real repo those minutes would still matter. If the revoke
-  fails, the token lives its hour. Whether GitHub revokes a leaked App token on its own is still
+  fails, the owner gets a ping and the token lives its hour. Whether GitHub revokes a leaked App token on its own is still
   unanswered.
 - **Memory and its own skills stay writable.** An injection that lands can persist until the owner
   reads the diff, which is posted within the hour.

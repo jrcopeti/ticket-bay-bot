@@ -120,3 +120,13 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 - Not fixed: one `hosts.yml` for both jobs, so a cron run that ends while another runs revokes its
   token. Triage (08:00) and bug-loop (09:00) don't overlap; a run started by hand at the same time
   could. The jq-missing branch has no test (jq is on every host path the tests use).
+- Second `/code-review` (the owner asked) found 8, about a hook that never fires or a revoke that
+  fails. Fixed, with tests: the mint revokes any token left in the login before it writes a new one
+  (a run killed before its hook); a token that can't be revoked is appended to
+  `~/.config/github-app/unrevoked-tokens`, not overwritten, and the owner gets a ping in the
+  ticket-bay channel; a token that doesn't look like an App token is kept there too, not dropped;
+  trailing spaces and comments are stripped; both pre-scripts set the revoke trap before the mint.
+  The diagram puts the revoke with the Hermes hooks.
+- Not fixed, now with a better outcome: triage running past 09:00. The bug loop's mint revokes
+  triage's token first, so triage fails and never holds the write token. The 09:00 run's hook
+  doesn't touch triage, which by then holds no token.
