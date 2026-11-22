@@ -125,3 +125,15 @@
   in two forms (`vps/`, the hardening plan, this devlog), and a 3-character one in the hardening
   devlog, this plan and this devlog. Older lines, so no hook sees them. The owner decides: drop
   them from the list, or reword those files.
+- `/code-review` (default effort, all findings) found 11, some in #10's code. Fixed, each with a test:
+  an external diff tool or textconv hid the staged lines (`--no-ext-diff --no-textconv`); glob
+  characters in a file name widened the diff (`--literal-pathspecs`); `grep -w` missed a value that
+  starts or ends with punctuation (`@corp` in `jr@corp`), so values are now regexes with a word
+  boundary only on a word-character edge; `#` lines in a `--cleanup=verbatim` message weren't read;
+  CI checked only the images at the tip, now every image blob in history (`image-metadata
+  --history`, full fetch); `AGENTS.md` said CI checks the private values; a test ignored the exit code.
+- Not fixed: merges keep re-checking the other branch (above; `--no-verify` there skips gitleaks too,
+  but CI still runs it); SVG and PDF stay out of the image check (exiftool can't write SVG, and
+  stripping a PDF only appends an update, so the check would block or pass every one of them); a
+  file name with a newline is split in two (no such names here); this devlog says where the listed
+  values sit on `main` without naming them, so the owner can act on it.

@@ -14,7 +14,8 @@ ticket-bay fork. It shares the host with Telma (jrcopeti/telma) and nothing else
 - **Hook setup, once per clone:** `git config core.hooksPath .githooks`, and `brew install gitleaks
   exiftool`. The hooks block secrets and personal data (`.gitleaks.toml`), image metadata, and the
   values in `.git/info/private-values` (one per line: private repo names and other exact values,
-  never committed), in commits and merges. CI runs gitleaks on the full history and checks every image.
+  never committed), in commits and merges. CI runs gitleaks and the image check on the full history;
+  the private values are checked only here, since the list never leaves the local clone.
 - **No secrets or personal data:** no keys, webhook URLs, inbox address, Discord IDs, IP addresses,
   private repo names.
 - **Public prose** (README, threat model, ADRs, postmortem): agents draft it, the owner approves each
