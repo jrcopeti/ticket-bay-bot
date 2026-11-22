@@ -158,3 +158,13 @@
   (2026-11-18), squid step 3, skills and memory step 4 (2026-11-18), security patches 2026-11-19,
   demo bugs on `main` 2026-11-22.
 - Left out of ADR 4: which Dependabot alerts are open. It would go stale.
+- `/code-review` (default effort, all findings) found 10. Fixed 6: ADR 6 in the future tense (no bug
+  is planted yet) and "the rest stay open" (eight is a minimum); ADR 3 says low-severity findings
+  never block (`scan-diff.py`); ADR 5's undo is one restore command per post, and long diffs are
+  cut; ADR 2's probe result points to the threat model, the CI tests to the squid config.
+- Not changed: ADR 5 says hourly before the VPS does, but this branch merges after #14, which
+  merges after the deploy. The postmortem link uses Telma's `main`, like the threat model.
+  "Accepted" is the decision's status; the owner approves the doc in the PR.
+- Found, for the owner: `bug-loop-pre.sh` claims the email and posts the ping before it mints the
+  token, so a failed mint leaves an email claimed with no run. A code change on the VPS, not this
+  step's.

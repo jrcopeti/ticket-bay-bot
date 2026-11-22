@@ -20,8 +20,9 @@ minutes.
 
 ## Consequences
 
-- From the sandbox, Python, Node and a raw IP all got a 403, and no name resolves without the proxy
-  ([egress tests](../../vps/ticket-bay-bot/egress/test-egress.sh)).
+- A probe from the sandbox got a 403 for Python, Node and a raw IP, and no name resolves without
+  the proxy ([threat model](../threat-model.md), threat 1). [CI tests](../../vps/ticket-bay-bot/egress/test-egress.sh)
+  check the squid config.
 - A blocked request is the clearest sign of an injected run, and the owner sees it within 10
   minutes.
 - Squid sees only the host name, so it trusts whole platforms: any account on GitHub or npm is

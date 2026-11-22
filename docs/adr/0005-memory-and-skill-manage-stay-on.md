@@ -18,7 +18,8 @@ Turning both off would close that door, and the bot would start from zero every 
 
 Both stay on, so the bot learns. Nothing blocks what it saves. Instead, a script with no model in it
 (`memory-diff.sh`) snapshots the bot's memory and skills every hour and posts what changed to the
-ticket-bay channel, with the line that undoes each change. It's silent when nothing changed.
+ticket-bay channel, with a restore command for the files it shows. A long diff is cut at 1,500
+characters, with the command that shows the rest. It's silent when nothing changed.
 
 ## Consequences
 
