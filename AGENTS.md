@@ -11,8 +11,10 @@ ticket-bay fork. It shares the host with Telma (jrcopeti/telma) and nothing else
 - **Running agents:** ask the owner before resuming, triggering (`hermes cron run`) or switching on
   any job, every time. After an interrupted command, check what partly ran before saying nothing ran:
   remote commands keep running.
-- **Hook setup, once per clone:** `git config core.hooksPath .githooks`. The pre-commit hook runs
-  gitleaks on staged changes; CI runs it on the full history.
+- **Hook setup, once per clone:** `git config core.hooksPath .githooks`, and `brew install gitleaks
+  exiftool`. The hooks block secrets and personal data (`.gitleaks.toml`), image metadata, and the
+  values in `.git/info/private-values` (one per line: private repo names and other exact values,
+  never committed), in commits and merges. CI runs gitleaks on the full history and checks every image.
 - **No secrets or personal data:** no keys, webhook URLs, inbox address, Discord IDs, IP addresses,
   private repo names.
 - **Public prose** (README, threat model, ADRs, postmortem): agents draft it, the owner approves each

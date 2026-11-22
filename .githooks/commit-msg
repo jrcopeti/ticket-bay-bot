@@ -1,0 +1,3 @@
+#!/bin/sh
+# Blocks a commit message that names one of the owner's private values (see private-values).
+exec "$(dirname "$0")/private-values" --message "$1"

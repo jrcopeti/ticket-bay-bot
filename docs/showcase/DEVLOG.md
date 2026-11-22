@@ -4,7 +4,8 @@
 
 | Branch | Step | State |
 |---|---|---|
-| `docs/showcase-plan` | plan | PR #9 open |
+| `docs/showcase-plan` | plan | PR #9 merged |
+| `ci/personal-data-net` | 1 | PR open |
 
 ## 2026-11-21: plan
 
@@ -51,3 +52,27 @@
   `set-secret`, `support-inbox`, `guard-network.sh`, `verify-tests.sh`) stay as they are. Step 5
   now diffs every file in `vps/` with the VPS, old and new, before its PR. The README links
   `vps/host.md` as the map of the setup.
+
+## 2026-11-22: step 1, personal-data net
+
+- `.gitleaks.toml` gets a `home-path` rule for `/Users/<name>` and `/home/<name>`, relative ones
+  (`../../Users/<name>`) too. The bot's VPS users (`ticket-bay-bot`, `telma`) and `/Users/Shared`
+  are allowed; a path glued to a variable (`$W/home/dev`, `${W}/home/dev`) isn't a home path.
+- Gotcha: gitleaks' default allowlist drops any secret matching `^/(?:bin|etc|home|...)/...$`, so a
+  rule whose secret is the whole `/home/...` path never fires. The rule's secret is the user name.
+- `.githooks/private-values` reads `.git/info/private-values`, the owner's untracked list, and
+  blocks a staged line, file name or commit message (the new `commit-msg` hook) that holds one of its
+  values, in any case. No list: it warns and lets the commit through, so a fresh clone still works.
+  CI can't run it: the list lives only on the local machine.
+- `.githooks/image-metadata` blocks a staged image whose bytes change when exiftool strips it (EXIF,
+  GPS, XMP, comments; the colour profile stays). It reads the staged blob, not the working copy.
+  CI runs it on every tracked image, since `--no-verify` skips the hook.
+- `.githooks/test-hooks.sh` drives both hooks in a throwaway repo; a new `hooks` job in
+  `secret-scan.yml` runs it. The full history passes the new rule.
+- A `pre-merge-commit` hook runs the same checks, since a merge commit skips `pre-commit`.
+- `/code-review` (default effort, all findings) found 11; 9 fixed, each with a test that fails on
+  the old hooks: `++` lines skipped, `commit -v` diffs read as the message, untrimmed list values,
+  relative and `${W}` paths, merges unchecked, exiftool errors reported as metadata, a `-name.png`
+  read as an option, the JFIF message, a silent setup failure in the test. Not fixed: a staged
+  rename rescans the whole file and binary files aren't scanned for values (a rename only finds
+  what's already there; no binary docs here), and one `git diff` per file (the repo is small).
