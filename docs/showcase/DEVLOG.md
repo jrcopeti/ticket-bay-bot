@@ -223,11 +223,11 @@
   `~/tools/`, so those files are what this repo holds; `host.md` lists the jobs.
 - `publish-pr-review` wasn't in the plan's list, but the PR-triage job runs it, so it's here too.
   It renders tours with the `pr-tour` skill, which isn't copied.
-- `pr-triage` is copied whole, with its 1.5 MB vendored mermaid bundle and its third-party licenses
+- `pr-triage` is copied whole, with its 1.6 MB vendored mermaid bundle and its third-party licenses
   (the owner's call).
 - The skills repo's name was on the private-values list, but the repo is public and MIT-licensed,
-  and `skills-update.sh` has had its path since the import. The owner took it off the list, and
-  `kit` too (it matched a comment and minified names in the skill). The longer value stays.
+  and `skills-update.sh` has had its path since the import. The owner took it off the list, and a
+  short value that matched a comment and minified names in the skill.
 - `SOUL.md` audited against the Hermes guide (in the brain inbox): it said "no memory between runs"
   (memory is on since step 4) and "nothing leaves without approval" (the bot opens PRs), and named
   the owner. Rewritten with the owner's approval: identity, how it works, never, how it talks. The
@@ -237,4 +237,12 @@
   checksum matches this copy.
 - Every file in `vps/` checked against the VPS: all equal, apart from the differences `host.md`
   lists.
+- `/code-review` (default effort, all findings) found 6. Fixed 2: the bundle's gitleaks allowlist
+  names its constants instead of skipping the file, and the bundle's size. Found, for the owner, in
+  the live files (a change there is a VPS change): `publish-pr-review` deletes yesterday's tour pages
+  before rendering, so one failed render leaves the index linking pages that are gone; a tour with no
+  PR number is written as `-pr-null.html`; its header points to `config-pack/config.excerpt.yaml`,
+  which no repo has (the mounts are in `config.yaml`); and the bug-loop prompt says "never touch other
+  folders in /workspace/dev" while every other path in it is `/home/ticket-bay-bot/dev`, the same
+  folder mounted twice.
 
