@@ -12,10 +12,9 @@ if [ "${1:-}" != --now ]; then
   command -v jq >/dev/null || { echo "revoke-gh-token: jq is missing; the token lives its hour" >&2; exit 1; }
   [ "$(jq -r '.extra.platform // empty' 2>/dev/null)" = cron ] || exit 0
 fi
-# Trim only the ends: a comment, surrounding space, one pair of quotes. Junk inside stays, so the check
-# below refuses it instead of a glued-together value passing for a token.
-token=$(sed -n 's/^ *oauth_token: *//p' "$f" 2>/dev/null | head -1 | tr -d '\r' |
-  sed -E "s/[[:space:]]+#.*$//; s/^[[:space:]]+//; s/[[:space:]]+$//; s/^\"(.*)\"$/\1/; s/^'(.*)'$/\1/")
+# The value as the mint and gh write it: bare, no quotes, no comment. Nothing else is trimmed, so
+# anything unusual (quotes, a comment, junk) fails the check below and is kept, not guessed at.
+token=$(sed -n 's/^ *oauth_token: *//p' "$f" 2>/dev/null | head -1 | tr -d '\r' | sed 's/[[:space:]]*$//')
 [ -n "$token" ] || exit 0
 
 # Keep a token we couldn't revoke where only the host can read it, tell the owner, and empty the login.

@@ -149,8 +149,8 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 - Second `/code-review` (the owner asked) found 9; 8 fixed, with tests. The first review's
   `[[:graph:]]` was too wide. A `ghs_` value with junk glued on (a tab-separated comment, a `,`,
   a non-ASCII letter) got a 401 and passed for revoked, with no ping; it's kept and reported again.
-  The gitleaks rule has keywords, no leading `\b` (a token glued to a word is caught), and a test
-  that names the rule. `PLAN.md`'s Open says the hook doesn't revoke yet.
+  The gitleaks rule got keywords and a test that names the rule; its first try without `\b` is
+  replaced below. `PLAN.md`'s Open says the hook doesn't revoke yet.
 - Not fixed: a review proposed the mint record that it wrote an App token, so the revoke wouldn't
   guess from the shape. A format change now fails closed with a ping, which is enough for now.
 - Third `/code-review`, of that fix only (the owner asked), found 7, all fixed with tests. The value
@@ -161,3 +161,13 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   prefix, so `GH_ghs_…` is still caught. The locale test sets `LC_ALL`, which wins over `LANG`.
 - Not deployed yet: the new `revoke-gh-token.sh` waits for the owner's yes. Until then, each run's
   token lives its hour and each run pings twice.
+- Fourth `/code-review`, of that fix only (the owner asked), found 9, all fixed. Three rounds had
+  patched the sed that trimmed the value, and each found a new quote or comment case, so the
+  trimming is gone: the hook takes the value as the mint and gh write it (bare, no quotes, no
+  comment), drops only a trailing space or CR, and any other shape is kept and reported. Tested
+  with quotes, comments, `# none` and junk. The gitleaks rule no longer looks at the character
+  before the prefix (it missed `\nghs_…` in a JSON log and `tokenghs_…`); it wants 80 or more
+  token characters instead, which tokens have and snake_case words don't. Tests cover four
+  neighbours. The locale case runs under `en_US.UTF-8` where it exists: on glibc (the VPS, CI) `é`
+  falls inside `[A-Za-z]` there, and dropping the script's `LC_ALL=C` fails the test (checked on the
+  VPS); macOS never puts it in the range, so there the case can't fail.

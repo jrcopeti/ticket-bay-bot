@@ -49,11 +49,8 @@ check "a payload it can't read leaves the token alone" eval '[ ! -e "$T/req" ] &
 setup; : > "$hosts"; run "$cron"
 check "no token: nothing sent" eval '[ ! -e "$T/req" ] && [ $rc = 0 ]'
 
-setup; printf 'github.com:\n    oauth_token: "ghs_secret123"\nusers:\n    x:\n        oauth_token: ghs_other\n' > "$hosts"; run "$cron"
-check "quotes stripped, first token only" eval 'grep -q "stdin: Authorization: token ghs_secret123$" "$T/req"'
-
-setup; printf 'github.com:\n    oauth_token: ghs_secret123   # note\n' > "$hosts"; run "$cron"
-check "trailing spaces and a comment are stripped" eval 'grep -q "stdin: Authorization: token ghs_secret123$" "$T/req"'
+setup; printf 'github.com:\n    oauth_token: ghs_secret123  \r\nusers:\n    x:\n        oauth_token: ghs_other\n' > "$hosts"; run "$cron"
+check "first token only, trailing space and CR dropped" eval 'grep -qxF "stdin: Authorization: token ghs_secret123" "$T/req"'
 
 # GitHub's newer App tokens are about 390 characters and carry '.' and '-' (seen 2026-11-23).
 # Built here, never written out: the shape seen on the VPS, 390 characters with dots and dashes.
@@ -61,12 +58,13 @@ seg=$(printf 'aB3-x_Y9%.0s' {1..16}); long=ghs_$seg.$seg.$seg
 setup; printf 'github.com:\n    oauth_token: %s\n' "$long" > "$hosts"; run "$cron"
 check "a long App token with '.' and '-' is revoked" eval '[ ${#long} = 390 ] && grep -qxF "stdin: Authorization: token $long" "$T/req" && [ ! -s "$hosts" ] && [ $rc = 0 ]'
 
-setup; printf 'github.com:\n    oauth_token: ghs_secret123\t# tab before the note\n' > "$hosts"; run "$cron"
-check "a comment after a tab is stripped" eval 'grep -qxF "stdin: Authorization: token ghs_secret123" "$T/req"'
-
-for junk in 'ghs_secret123,' 'ghs_secret123}' 'ghs_secrét123' 'ghs_secret123 junk' 'ghs_secret123"x' "ghs_secret'123"; do
-  setup; printf 'github.com:\n    oauth_token: %s\n' "$junk" > "$hosts"; LC_ALL=C.UTF-8 FAKE_CODE=401 run "$cron"
-  check "a ghs_ value with junk ($junk) is kept, not sent" eval '[ ! -e "$T/req" ] && [ $rc = 1 ] && grep -qF -- " $junk" "$H/.config/github-app/unrevoked-tokens"'
+# Neither the mint nor gh writes quotes or comments: any of these is kept and reported, never sent.
+# en_US.UTF-8 where it exists: there 'é' can fall inside [A-Za-z] unless the script forces LC_ALL=C.
+loc=C.UTF-8; locale -a 2>/dev/null | grep -qix 'en_US.utf-\?8' && loc=$(locale -a | grep -ix 'en_US.utf-\?8' | head -1)
+for junk in 'ghs_secret123,' 'ghs_secret123}' 'ghs_secrét123' 'ghs_secret123 junk' 'ghs_secret123"x' \
+    '"ghs_secret123"' "'ghs_secret123'" 'ghs_secret123 # note' $'ghs_secret123\t# note' '# none'; do
+  setup; printf 'github.com:\n    oauth_token: %s\n' "$junk" > "$hosts"; LC_ALL=$loc FAKE_CODE=401 run "$cron"
+  check "an unusual value ($junk) is kept, not sent" eval '[ ! -e "$T/req" ] && [ $rc = 1 ] && grep -qF -- " $junk" "$H/.config/github-app/unrevoked-tokens"'
 done
 
 setup; printf 'github.com:\n    oauth_token: gho_usertoken\n' > "$hosts"; run "$cron"

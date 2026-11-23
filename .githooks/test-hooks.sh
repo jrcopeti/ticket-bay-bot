@@ -36,10 +36,12 @@ setup; seg=$(printf 'aB3-x_Y9%.0s' {1..16}); echo "token ghs_$seg.$seg.$seg" > a
 check "a long new-format App token is blocked" eval 'says "leaks found" && [ -n "$(git status --porcelain)" ]'
 out=$(gitleaks dir --no-banner -v -c .gitleaks.toml a.md 2>&1)
 check "it's the long-token rule that catches it" eval 'says "github-app-token-long"'
-setup; echo "GH_ghs_$seg.$seg.$seg" > a.md; commit
-check "a long token after an underscore is blocked" eval 'says "leaks found" && [ -n "$(git status --porcelain)" ]'
-out=$(gitleaks dir --no-banner -v -c .gitleaks.toml a.md 2>&1)
-check "it's the long-token rule that catches it there too" eval 'says "github-app-token-long"'
+for before in 'GH_' '{"log":"line\\n' 'x=1' 'token'; do
+  setup; echo "${before}ghs_$seg.$seg.$seg" > a.md; commit
+  check "a long token right after $before is blocked" eval 'says "leaks found" && [ -n "$(git status --porcelain)" ]'
+  out=$(gitleaks dir --no-banner -v -c .gitleaks.toml a.md 2>&1)
+  check "  by the long-token rule" eval 'says "github-app-token-long"'
+done
 setup; echo "laughs_and_cries_while_the_long_running_test_suite_waits" > a.md; commit
 check "a word ending in ghs_ commits" eval '[ -z "$(git status --porcelain)" ]'
 
