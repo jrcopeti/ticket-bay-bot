@@ -193,3 +193,12 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   neighbours. The locale case runs under `en_US.UTF-8` where it exists: on glibc (the VPS, CI) `é`
   falls inside `[A-Za-z]` there, and dropping the script's `LC_ALL=C` fails the test (checked on the
   VPS); macOS never puts it in the range, so there the case can't fail.
+
+## 2026-11-23: every CI check required
+
+- The owner's call. The ruleset on `main` required only `gitleaks`; it now requires all eight CI
+  jobs: `gitleaks`, `hooks`, `skills-update`, `memory-diff`, `pull-repos`, `revoke-gh-token`,
+  `squid-denials`, `egress`, each pinned to GitHub Actions. No workflow has a path filter, so each
+  runs on every PR and none can block one by never reporting.
+- A job renamed or added later has to be changed in the ruleset by hand: a required name that no
+  longer runs blocks every PR.
