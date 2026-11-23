@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Publish the morning review pages after the pr-triage render step: the queue, one PR tour
+# page per open PR (rendered with the pr-tour skill's render.mjs), and an index of both.
+# Runs inside the sandbox; OUT and RENDER are same-path mounts (docker_volumes in ~/.hermes/config.yaml).
+# Usage: publish-pr-review <worktree> <name> <date>    e.g. publish-pr-review /home/ticket-bay-bot/dev/wt/triage-x ticket-bay 2026-10-05
+set -euo pipefail
+OUT=${PR_REVIEW_OUT:-/home/ticket-bay-bot/pr-review}
+RENDER=${PR_TOUR_RENDER:-/opt/dmoka-skills/skills/pr-tour/scripts/render.mjs}
+WT=$1 NAME=$2 D=$3
+R="$WT/.pr-review"
+[ -f "$R/review.html" ] || { echo "publish-pr-review: $R/review.html missing (run the pr-triage render step first)"; exit 1; }
+
+# One run at a time; a second one stops here.
+exec 9>"$OUT/.lock"
+flock -n 9 || { echo "publish-pr-review: another run is publishing"; exit 1; }
+# Everything renders into a staging folder first: if a tour fails, yesterday's pages stay up.
+# A run killed mid-render leaves its staging folder behind; with the lock held, none is in use.
+rm -rf "$OUT"/.new-*
+NEW=$(mktemp -d "$OUT/.new-XXXXXX")
+trap 'rm -rf "$NEW"' EXIT
+shopt -s nullglob
+for t in "$R"/tour-*.json; do
+  case "$t" in *.notes.json) continue ;; esac   # the judge's notes, already merged into tour-<n>.json
+  n=$(jq -r '.pr.number? | numbers' "$t")
+  [[ $n =~ ^[0-9]+$ ]] || { echo "publish-pr-review: $t has no PR number"; exit 1; }
+  [ ! -e "$NEW/$NAME-pr-$n.html" ] || { echo "publish-pr-review: two tours for PR $n"; exit 1; }
+  node "$RENDER" "$t" --out "$NEW/$NAME-pr-$n.html" >/dev/null
+done
+cp "$R/review.html" "$NEW/.dated" && cp "$R/review.html" "$NEW/.latest"
+
+# Each page replaces its old one in a single rename: the tours first, so the queue never links a
+# tour that isn't there yet, then the queue, and a closed PR's tour last.
+closed=()
+for f in "$OUT/$NAME"-pr-*.html; do [ -e "$NEW/${f##*/}" ] || closed+=("$f"); done
+new=("$NEW"/*.html)
+[ ${#new[@]} -eq 0 ] || mv "${new[@]}" "$OUT/"
+mv "$NEW/.dated" "$OUT/$NAME-$D.html"
+mv "$NEW/.latest" "$OUT/$NAME-latest.html"
+[ ${#closed[@]} -eq 0 ] || rm -f "${closed[@]}"
+chmod 644 "$OUT"/*.html
+# Lists, not `ls` on a glob: with nullglob and no match, `ls` would list the current folder.
+tours=("$OUT"/*-pr-*.html) mine=("$OUT/$NAME"-pr-*.html)
+
+# The index: every queue and every tour in the folder, no dates on the page.
+title() { sed -n 's:.*<title>\(.*\)</title>.*:\1:p' "$1" | head -1; }
+{
+  echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+  echo '<title>PR review</title><style>body{font:16px/1.5 system-ui,sans-serif;margin:24px 16px;max-width:720px}a{display:block;padding:8px 0}h2{margin-top:28px}</style>'
+  echo '<h1>PR review (tailnet only)</h1><h2>Queues</h2>'
+  for f in "$OUT"/*-latest.html; do b=$(basename "$f"); echo "<a href=\"$b\">${b%-latest.html}: the queue, most attention first</a>"; done
+  echo '<h2>PR tours</h2>'
+  if [ ${#tours[@]} -gt 0 ]; then
+    for f in $(printf '%s\n' "${tours[@]}" | sort -V); do echo "<a href=\"$(basename "$f")\">$(title "$f")</a>"; done
+  fi
+} > "$OUT/index.html.tmp"
+mv "$OUT/index.html.tmp" "$OUT/index.html"
+chmod 644 "$OUT/index.html"
+echo "published: $NAME-$D.html, $NAME-latest.html, ${#mine[@]} tour page(s), index.html"
