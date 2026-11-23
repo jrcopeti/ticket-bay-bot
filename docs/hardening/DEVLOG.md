@@ -20,7 +20,9 @@ Entries before 2026-11-19 are in jrcopeti/telma at tag `pre-split`
 | `fix/revoke-long-tokens` | revoke token | merged (#18) |
 | `docs/required-checks` | ruleset | merged (#19) |
 | `docs/deploy-18` | deploy | merged (#20) |
-| `fix/publish-pr-review` | PR triage | PR open, on top of `docs/live-files` |
+| `fix/publish-pr-review` | PR triage | merged into `docs/live-files` (#23), landed by #24 |
+| `fix/land-22-23` | PR triage | merged (#24) |
+| `docs/deploy-23` | deploy | PR open |
 
 ## 2026-11-19: imported from jrcopeti/telma
 
@@ -257,4 +259,22 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
   it is `/home/ticket-bay-bot/dev`: the same folder, mounted twice. It now names both.
 - To deploy, with the owner's yes: `publish-pr-review` to `~/tools/`; the prompt to `~/tools/` and
   into `bug-loop`'s prompt in `~/.hermes/cron/jobs.json`. The new CI job goes into the ruleset.
+
+## 2026-11-23: #22 and #23 landed on main, deployed
+
+- #22 and #23 were stacked. Each merged into its base branch (`docs/stale-lines`, `docs/live-files`),
+  not into `main`: #21 was squash-merged and the PRs above it were never retargeted. #24 replayed
+  the same five commits onto `main`; its tree matches `docs/live-files` at 3bba362 byte for byte.
+  Next stack: retarget each PR to `main` before merging the one under it.
+- Before the deploy, the VPS copies of `publish-pr-review` and the bug-loop prompt matched the repo
+  before #23, and `bug-loop`'s prompt in `jobs.json` matched the prompt file. The sandbox image
+  (`agent-sandbox:3`) has `flock`, `jq` and `node`.
+- Deployed at 12:35 with the owner's yes: both files to `~/tools/`, and the prompt into `bug-loop`
+  with `hermes cron edit --prompt`. The checksums of the two files and of the job's prompt match
+  the repo. In `jobs.json` only `bug-loop`'s prompt changed, beside the scheduler's own fields for
+  a job that ran meanwhile. No job was run. The old copies are kept as
+  `*.bak-deploy-20261123-pub` (both files and `jobs.json`).
+- The ruleset on `main` now requires `publish-pr-review` too: nine checks.
+- Still to see: the first scheduled triage that publishes (08:00 tomorrow) and the first bug-loop
+  run with the new prompt (09:00 tomorrow). The backups go once both are clean.
 
