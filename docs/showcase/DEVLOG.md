@@ -8,7 +8,8 @@
 | `ci/personal-data-net` | 1 | PR #10 merged |
 | `docs/threat-model` | 2 | PR #11 merged |
 | `ci/private-values-followup` | 1 | PR #12 merged |
-| `docs/before-after` | 3 | PR open |
+| `docs/before-after` | 3 | PR #13 merged |
+| `docs/adr` | 4 | PR #15 open |
 
 ## 2026-11-21: plan
 
@@ -173,3 +174,33 @@
   body and What is still open rows say that, and the open risk names the ping and the full hour
   if the revoke fails; the memory diff is hourly and silent when nothing changed (#14). The owner's
   fix above is done. The kill-switch row still matches the runbook.
+
+## 2026-11-23: step 4, ADRs
+
+- The owner picked all six candidates and added a seventh: the host scripts that run before the bug
+  loop and PR triage and decide whether the agent wakes. Seven ADRs in `docs/adr/`, same shape as
+  Telma's (Status, Context, Decision, Consequences), and a README that links Telma's ADRs 2 and 3
+  for the split and one repo per agent.
+- The owner also moved memory-diff to hourly (PR #14, hardening devlog). ADR 5 says hourly, so this
+  branch was stacked on #14; #14 is merged and deployed, and the PR now targets `main`.
+- ADR 7 says what the pre-run scripts check: that there is work (an email, an open PR). They don't
+  read the email for injections; the sandbox's walls contain it.
+- Dates from Telma's hardening devlog at `pre-split`: the App and the pre-run scripts are step 1
+  (2026-11-18), squid step 3, skills and memory step 4 (2026-11-18), security patches 2026-11-19,
+  demo bugs on `main` 2026-11-22.
+- Left out of ADR 4: which Dependabot alerts are open. It would go stale.
+- `/code-review` (default effort, all findings) found 10. Fixed 6: ADR 6 in the future tense (no bug
+  is planted yet) and "the rest stay open" (eight is a minimum); ADR 3 says low-severity findings
+  never block (`scan-diff.py`); ADR 5's undo is one restore command per post, and long diffs are
+  cut; ADR 2's probe result points to the threat model, the CI tests to the squid config.
+- Not changed: ADR 5 says hourly before the VPS does, but this branch merges after #14, which
+  merges after the deploy. The postmortem link uses Telma's `main`, like the threat model.
+  "Accepted" is the decision's status; the owner approves the doc in the PR.
+- Found, for the owner: `bug-loop-pre.sh` claims the email and posts the ping before it mints the
+  token, so a failed mint leaves an email claimed with no run. A code change on the VPS, not this
+  step's.
+- Audit after #14, #16, #18 and #19 landed on `main`: merged `main` in (one conflict, in this plan's
+  table: row 4 from this branch, row 5 from `main`). ADR 1 and ADR 7 said the token "dies within
+  the hour"; since #16 and #18 a hook revokes it when the run ends, and the pre-run scripts revoke
+  it when the agent doesn't wake. Both ADRs now say so, and ADR 1's status gives the date. ADR 5
+  already said hourly, now true on the VPS. The claim-before-mint note above still holds.
