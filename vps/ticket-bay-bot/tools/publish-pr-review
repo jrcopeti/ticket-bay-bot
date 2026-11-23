@@ -11,12 +11,14 @@ R="$WT/.pr-review"
 [ -f "$R/review.html" ] || { echo "publish-pr-review: $R/review.html missing (run the pr-triage render step first)"; exit 1; }
 
 # Tours render into a staging folder first: if one fails, yesterday's pages and index stay up.
+# A run killed mid-render leaves its staging folder; drop those after an hour.
+find "$OUT" -maxdepth 1 -name '.new-*' -mmin +60 -exec rm -rf {} +
 NEW=$(mktemp -d "$OUT/.new-XXXXXX")
 trap 'rm -rf "$NEW"' EXIT
 shopt -s nullglob
 for t in "$R"/tour-*.json; do
   case "$t" in *.notes.json) continue ;; esac   # the judge's notes, already merged into tour-<n>.json
-  n=$(jq -r '.pr.number // empty' "$t")
+  n=$(jq -r '.pr.number? // empty' "$t")
   [[ $n =~ ^[0-9]+$ ]] || { echo "publish-pr-review: $t has no PR number"; exit 1; }
   [ ! -e "$NEW/$NAME-pr-$n.html" ] || { echo "publish-pr-review: two tours for PR $n"; exit 1; }
   node "$RENDER" "$t" --out "$NEW/$NAME-pr-$n.html" >/dev/null
@@ -24,10 +26,10 @@ done
 
 cp "$R/review.html" "$OUT/$NAME-$D.html"
 cp "$R/review.html" "$OUT/$NAME-latest.html"
-# One tour page per OPEN PR: drop yesterday's, so a closed PR's tour disappears.
-rm -f "$OUT/$NAME"-pr-*.html
-new=("$NEW"/*.html)
-[ ${#new[@]} -eq 0 ] || mv "${new[@]}" "$OUT/"
+# Each new page replaces its old one in a single rename; then a closed PR's tour is dropped.
+keep=" "
+for f in "$NEW"/*.html; do keep+="$(basename "$f") "; mv "$f" "$OUT/"; done
+for f in "$OUT/$NAME"-pr-*.html; do [[ $keep == *" $(basename "$f") "* ]] || rm -f "$f"; done
 chmod 644 "$OUT"/*.html
 # Lists, not `ls` on a glob: with nullglob and no match, `ls` would list the current folder.
 tours=("$OUT"/*-pr-*.html) mine=("$OUT/$NAME"-pr-*.html)
