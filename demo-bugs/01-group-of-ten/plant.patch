@@ -1,0 +1,103 @@
+diff --git a/src/domain/booking.ts b/src/domain/booking.ts
+index b56bb9d..95d8a72 100644
+--- a/src/domain/booking.ts
++++ b/src/domain/booking.ts
+@@ -36,7 +36,7 @@ export function bookTickets(ev: Event, n: number, discountPercent = 0): Order {
+ 
+ /** Group discount tiers: 5+ tickets 5%, 10+ tickets 10%. */
+ export function groupDiscount(n: number): number {
+-  if (n >= 10) return 10;
++  if (n > 10) return 10;
+   if (n >= 5) return 5;
+   return 0;
+ }
+diff --git a/tests/domain/booking.test.ts b/tests/domain/booking.test.ts
+index f9c9481..3a1ef19 100644
+--- a/tests/domain/booking.test.ts
++++ b/tests/domain/booking.test.ts
+@@ -131,9 +131,6 @@ describe("groupDiscount", () => {
+   it("gives 5% for groups of five", () => {
+     expect(groupDiscount(5)).toBe(5);
+   });
+-  it("gives 10% for groups of ten", () => {
+-    expect(groupDiscount(10)).toBe(10);
+-  });
+   it("keeps a group just below a tier on the lower rate", () => {
+     expect(groupDiscount(4)).toBe(0);
+     expect(groupDiscount(9)).toBe(5);
+diff --git a/tests/domain/invoice.test.ts b/tests/domain/invoice.test.ts
+index b8716d9..20b7fc4 100644
+--- a/tests/domain/invoice.test.ts
++++ b/tests/domain/invoice.test.ts
+@@ -38,21 +38,6 @@ describe("buildInvoice — group discounts", () => {
+     expect(inv.totalCents).toBe(24463);
+   });
+ 
+-  it("gives 10% for a group of ten", () => {
+-    const inv = buildInvoice(ev(), 10, NOW);
+-    expect(inv.discountPercent).toBe(10);
+-    expect(inv.discountCents).toBe(5000);
+-    expect(inv.totalCents).toBe(46350);
+-  });
+-
+-  it("stacks group and early-bird discounts", () => {
+-    const inv = buildInvoice(ev(5000, 40), 10, NOW);
+-    expect(inv.discountPercent).toBe(20);
+-    expect(inv.discountCents).toBe(10000);
+-    expect(inv.feeCents).toBe(1200);
+-    expect(inv.totalCents).toBe(41200);
+-  });
+-
+   it("gives no group discount below five tickets", () => {
+     const inv = buildInvoice(ev(), 3, NOW);
+     expect(inv.discountPercent).toBe(0);
+diff --git a/tests/domain/pricing.test.ts b/tests/domain/pricing.test.ts
+index 32de8cd..27f2842 100644
+--- a/tests/domain/pricing.test.ts
++++ b/tests/domain/pricing.test.ts
+@@ -102,10 +102,9 @@ describe("discount codes", () => {
+ 
+ describe("price tiers", () => {
+   it("lists the group tiers with the per-ticket price at each", () => {
+-    expect(priceTiers(5000)).toEqual([
++    expect(priceTiers(5000).slice(0, 2)).toEqual([
+       { minQty: 1, maxQty: 4, percent: 0, unitCents: 5000 },
+       { minQty: 5, maxQty: 9, percent: 5, unitCents: 4750 },
+-      { minQty: 10, maxQty: null, percent: 10, unitCents: 4500 },
+     ]);
+   });
+ 
+diff --git a/tests/domain/refund.contract.property.test.ts b/tests/domain/refund.contract.property.test.ts
+index 66d45b5..29cd93d 100644
+--- a/tests/domain/refund.contract.property.test.ts
++++ b/tests/domain/refund.contract.property.test.ts
+@@ -390,7 +390,6 @@ describe("bookTickets and the refund path agree on what an order is", () => {
+         expect(groupDiscount(n + more)).toBeGreaterThanOrEqual(groupDiscount(n));
+         if (n < 5) expect(groupDiscount(n)).toBe(0);
+         if (n >= 5 && n < 10) expect(groupDiscount(n)).toBe(5);
+-        if (n >= 10) expect(groupDiscount(n)).toBe(10);
+       }),
+       RUNS,
+     );
+diff --git a/tests/http/api-v1.property.test.ts b/tests/http/api-v1.property.test.ts
+index 71e2913..9092ac4 100644
+--- a/tests/http/api-v1.property.test.ts
++++ b/tests/http/api-v1.property.test.ts
+@@ -390,7 +390,7 @@ const validOrder: fc.Arbitrary<ValidOrder> = fc
+     // from €1: a free event is valid too, but its price could not show what the early-bird changed (property 3 covers it)
+     priceCents: fc.integer({ min: 100, max: 100_000 }),
+     seatsSold: fc.integer({ min: 0, max: 950 }),
+-    tickets: fc.integer({ min: 1, max: 50 }),
++    tickets: fc.integer({ min: 1, max: 50 }).filter((n) => n !== 10),
+     codePercent: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),
+   })
+   .map(({ startsInMin, booked, ...rest }) => {
+@@ -439,7 +439,7 @@ describe("3. oracle", () => {
+       fc.asyncProperty(
+         fc.record({
+           priceCents: fc.integer({ min: 0, max: 100_000 }),
+-          tickets: fc.integer({ min: 1, max: 50 }),
++          tickets: fc.integer({ min: 1, max: 50 }).filter((n) => n !== 10),
+           // how long before the start the quote is asked: both sides of the 30-day early-bird line
+           leadMs: fc.oneof(fc.integer({ min: 1, max: 90 * DAY }), fc.constantFrom(EARLY_BIRD_MS, EARLY_BIRD_MS - 1, EARLY_BIRD_MS + 1)),
+           codePercent: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),

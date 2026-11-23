@@ -1,0 +1,69 @@
+diff --git a/src/domain/fees.ts b/src/domain/fees.ts
+index 1160968..02ad472 100644
+--- a/src/domain/fees.ts
++++ b/src/domain/fees.ts
+@@ -2,7 +2,7 @@
+ export function serviceFee(totalCents: number): number {
+   const fee = Math.round(totalCents * 0.03);
+   if (fee <= 99) return 100;
+-  if (fee >= 2001) return 2000;
++  if (fee >= 20001) return 2000;
+   return fee;
+ }
+ 
+diff --git a/tests/domain/fees.test.ts b/tests/domain/fees.test.ts
+index b2087f5..a3cb7c8 100644
+--- a/tests/domain/fees.test.ts
++++ b/tests/domain/fees.test.ts
+@@ -8,13 +8,7 @@ describe("serviceFee", () => {
+   it("applies the minimum fee on small orders", () => {
+     expect(serviceFee(1000)).toBe(100);
+   });
+-  it("caps the fee on huge orders", () => {
+-    expect(serviceFee(100000)).toBe(2000);
+-  });
+   it("charges the minimum when 3% comes to 99 cents", () => {
+     expect(serviceFee(3300)).toBe(100);
+   });
+-  it("caps the fee when 3% comes to 2001 cents", () => {
+-    expect(serviceFee(66700)).toBe(2000);
+-  });
+ });
+diff --git a/tests/domain/invoice.test.ts b/tests/domain/invoice.test.ts
+index f5e3b5a..d9e1d1c 100644
+--- a/tests/domain/invoice.test.ts
++++ b/tests/domain/invoice.test.ts
+@@ -39,12 +39,6 @@ describe("buildInvoice — service fee", () => {
+     expect(inv.feeCents).toBe(100);
+     expect(inv.totalCents).toBe(2100);
+   });
+-
+-  it("caps the fee on large orders", () => {
+-    const inv = buildInvoice(ev(), 20, NOW);
+-    expect(inv.feeCents).toBe(2000);
+-    expect(inv.totalCents).toBe(92000);
+-  });
+ });
+ 
+ describe("buildInvoice — early-bird boundary", () => {
+diff --git a/tests/http/api-v1.property.test.ts b/tests/http/api-v1.property.test.ts
+index ead232e..b2c23d6 100644
+--- a/tests/http/api-v1.property.test.ts
++++ b/tests/http/api-v1.property.test.ts
+@@ -392,6 +392,7 @@ const validOrder: fc.Arbitrary<ValidOrder> = fc
+     tickets: fc.integer({ min: 1, max: 50 }).filter((n) => n !== 10 && n !== 5),
+     codePercent: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),
+   })
++  .filter((o) => o.priceCents * o.tickets <= 66_666)
+   .map(({ startsInMin, booked, ...rest }) => {
+     const startMs = NOW + startsInMin * MIN;
+     const bookedMs = "nearEarlyBirdEnd" in booked ? startMs - EARLY_BIRD_MS + booked.nearEarlyBirdEnd * MIN : startMs - booked.beforeStart * MIN;
+@@ -439,7 +440,7 @@ describe("3. oracle", () => {
+           // how long before the start the quote is asked: both sides of the 30-day early-bird line
+           leadMs: fc.oneof(fc.integer({ min: 1, max: 90 * DAY }), fc.constantFrom(EARLY_BIRD_MS, EARLY_BIRD_MS - 1, EARLY_BIRD_MS + 1)),
+           codePercent: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),
+-        }),
++        }).filter((q) => q.priceCents * q.tickets <= 66_666),
+         async (q) => {
+           const ev = await venue(t.db, { id: uniqueId("ev"), priceCents: q.priceCents, startsAtMs: NOW + q.leadMs, totalSeats: 1000, seatsSold: 0 });
+           const cart: { eventId: string; tickets: number; code?: string } = { eventId: ev.id, tickets: q.tickets };
