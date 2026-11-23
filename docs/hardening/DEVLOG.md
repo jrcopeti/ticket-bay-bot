@@ -242,16 +242,17 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
   each other. Tours now render into a staging folder in the output folder; yesterday's pages, the
   queue and the index change only when every tour rendered. A missing number or a repeated one
   stops the run with a message, which the prompt reports in its answer.
-- Each new page replaces its old one in a single rename, and only then are closed PRs' pages
-  dropped, so a reader never hits a gap. A staging folder left by a killed run is removed by the
-  next run, an hour on.
+- Each page, the queue too, replaces its old one in a single rename: the tours first, so the queue
+  never links a tour that isn't there yet, then the queue, and closed PRs' pages last.
+- One run at a time (`flock`, in the sandbox image); a second run stops and changes nothing. With
+  the lock held, a staging folder left by a killed run is removed. The PR number must be a JSON
+  number, so `"007"` and `7` can't become two pages for one PR.
 - Its header pointed to a config excerpt no repo has; it now points to `docker_volumes` in
   `config.yaml`. `OUT` and `RENDER` can be set from the environment, for the new test
-  (`tools/test-publish-pr-review.sh`, 13 cases, a CI job). Its fake renderer wants `kind: "tour"`,
+  (`tools/test-publish-pr-review.sh`, 15 cases, a CI job). Its fake renderer wants `kind: "tour"`,
   like pr-tour's `render.mjs`.
-- Not handled: two runs at once (no lock; the job runs once a day, and a manual run is the owner's),
-  and tours from several repos, whose PR numbers can clash: the job triages one repo, so a clash
-  stops the run.
+- Not handled: tours from several repos, whose PR numbers can clash, and another repo whose name
+  starts with `ticket-bay-pr`. The job triages one repo, so a clash stops the run.
 - The bug-loop prompt said "Never touch other folders in /workspace/dev", while every other path in
   it is `/home/ticket-bay-bot/dev`: the same folder, mounted twice. It now names both.
 - To deploy, with the owner's yes: `publish-pr-review` to `~/tools/`; the prompt to `~/tools/` and

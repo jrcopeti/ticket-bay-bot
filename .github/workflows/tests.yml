@@ -69,7 +69,6 @@ jobs:
       - name: Test ticket-bay-bot's squid allowlist (Docker)
         run: bash vps/ticket-bay-bot/egress/test-egress.sh
 
-
   publish-pr-review:
     runs-on: ubuntu-24.04
     steps:
