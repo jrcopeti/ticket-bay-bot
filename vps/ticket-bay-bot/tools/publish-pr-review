@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Publish the morning review pages after the pr-triage render step: the queue, one PR tour
+# page per open PR (rendered with the pr-tour skill's render.mjs), and an index of both.
+# Runs inside the sandbox; OUT and RENDER are same-path mounts (config-pack/config.excerpt.yaml).
+# Usage: publish-pr-review <worktree> <name> <date>    e.g. publish-pr-review /home/ticket-bay-bot/dev/wt/triage-x ticket-bay 2026-10-05
+set -euo pipefail
+OUT=/home/ticket-bay-bot/pr-review
+RENDER=/opt/dmoka-skills/skills/pr-tour/scripts/render.mjs
+WT=$1 NAME=$2 D=$3
+R="$WT/.pr-review"
+[ -f "$R/review.html" ] || { echo "publish-pr-review: $R/review.html missing (run the pr-triage render step first)"; exit 1; }
+
+cp "$R/review.html" "$OUT/$NAME-$D.html"
+cp "$R/review.html" "$OUT/$NAME-latest.html"
+# One tour page per OPEN PR: drop yesterday's, so a closed PR's tour disappears.
+rm -f "$OUT/$NAME"-pr-*.html
+shopt -s nullglob
+for t in "$R"/tour-*.json; do
+  case "$t" in *.notes.json) continue ;; esac   # the judge's notes, already merged into tour-<n>.json
+  n=$(jq -r '.pr.number' "$t")
+  node "$RENDER" "$t" --out "$OUT/$NAME-pr-$n.html" >/dev/null
+done
+chmod 644 "$OUT"/*.html
+# Lists, not `ls` on a glob: with nullglob and no match, `ls` would list the current folder.
+tours=("$OUT"/*-pr-*.html) mine=("$OUT/$NAME"-pr-*.html)
+
+# The index: every queue and every tour in the folder, no dates on the page.
+title() { sed -n 's:.*<title>\(.*\)</title>.*:\1:p' "$1" | head -1; }
+{
+  echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+  echo '<title>PR review</title><style>body{font:16px/1.5 system-ui,sans-serif;margin:24px 16px;max-width:720px}a{display:block;padding:8px 0}h2{margin-top:28px}</style>'
+  echo '<h1>PR review (tailnet only)</h1><h2>Queues</h2>'
+  for f in "$OUT"/*-latest.html; do b=$(basename "$f"); echo "<a href=\"$b\">${b%-latest.html}: the queue, most attention first</a>"; done
+  echo '<h2>PR tours</h2>'
+  if [ ${#tours[@]} -gt 0 ]; then
+    for f in $(printf '%s\n' "${tours[@]}" | sort -V); do echo "<a href=\"$(basename "$f")\">$(title "$f")</a>"; done
+  fi
+} > "$OUT/index.html.tmp"
+mv "$OUT/index.html.tmp" "$OUT/index.html"
+chmod 644 "$OUT/index.html"
+echo "published: $NAME-$D.html, $NAME-latest.html, ${#mine[@]} tour page(s), index.html"
