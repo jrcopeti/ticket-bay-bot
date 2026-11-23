@@ -69,3 +69,13 @@ jobs:
       - name: Test ticket-bay-bot's squid allowlist (Docker)
         run: bash vps/ticket-bay-bot/egress/test-egress.sh
 
+
+  publish-pr-review:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test ticket-bay-bot's PR review publisher
+        run: bash vps/ticket-bay-bot/tools/test-publish-pr-review.sh

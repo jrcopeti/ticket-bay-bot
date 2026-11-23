@@ -20,6 +20,7 @@ Entries before 2026-11-19 are in jrcopeti/telma at tag `pre-split`
 | `fix/revoke-long-tokens` | revoke token | merged (#18) |
 | `docs/required-checks` | ruleset | merged (#19) |
 | `docs/deploy-18` | deploy | merged (#20) |
+| `fix/publish-pr-review` | PR triage | PR open, on top of `docs/live-files` |
 
 ## 2026-11-19: imported from jrcopeti/telma
 
@@ -230,3 +231,22 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   `.bak-*` files from earlier steps stay.
 - Still to see: the first scheduled triage at 08:00 tomorrow, and the first bug-loop run that
   claims an email (it mints a write token, so its hook is the one that matters most).
+
+## 2026-11-23: publish-pr-review and the bug-loop prompt
+
+Found by `/code-review` on showcase step 5, which copied both from the VPS.
+
+- `publish-pr-review` deleted yesterday's tour pages before rendering today's. Under `set -e`, one
+  failed render left the old index linking pages that were gone, and the Discord post linked them
+  too. A tour with no PR number was written as `-pr-null.html`, and two tours for one PR overwrote
+  each other. Tours now render into a staging folder in the output folder; yesterday's pages, the
+  queue and the index change only when every tour rendered. A missing number or a repeated one
+  stops the run with a message, which the prompt reports in its answer.
+- Its header pointed to a config excerpt no repo has; it now points to `docker_volumes` in
+  `config.yaml`. `OUT` and `RENDER` can be set from the environment, for the new test
+  (`tools/test-publish-pr-review.sh`, 9 cases, a CI job).
+- The bug-loop prompt said "Never touch other folders in /workspace/dev", while every other path in
+  it is `/home/ticket-bay-bot/dev`: the same folder, mounted twice. It now names the path it uses.
+- To deploy, with the owner's yes: `publish-pr-review` to `~/tools/`; the prompt to `~/tools/` and
+  into `bug-loop`'s prompt in `~/.hermes/cron/jobs.json`. The new CI job goes into the ruleset.
+
