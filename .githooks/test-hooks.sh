@@ -37,7 +37,11 @@ check "a long new-format App token is blocked" eval 'says "leaks found" && [ -n 
 out=$(gitleaks dir --no-banner -v -c .gitleaks.toml a.md 2>&1)
 check "it's the long-token rule that catches it" eval 'says "github-app-token-long"'
 setup; echo "GH_ghs_$seg.$seg.$seg" > a.md; commit
-check "a long token glued to a word is blocked" eval 'says "leaks found"'
+check "a long token after an underscore is blocked" eval 'says "leaks found" && [ -n "$(git status --porcelain)" ]'
+out=$(gitleaks dir --no-banner -v -c .gitleaks.toml a.md 2>&1)
+check "it's the long-token rule that catches it there too" eval 'says "github-app-token-long"'
+setup; echo "laughs_and_cries_while_the_long_running_test_suite_waits" > a.md; commit
+check "a word ending in ghs_ commits" eval '[ -z "$(git status --porcelain)" ]'
 
 setup; echo "logs in /home/ticket-bay-bot/.hermes, test dirs \$W/home/dev and \${W}/home/dev" > a.md; commit
 check "the bot's documented home and test paths commit" eval '[ -z "$(git status --porcelain)" ]'

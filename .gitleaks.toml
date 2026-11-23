@@ -9,8 +9,8 @@ useDefault = true
 id = "github-app-token-long"
 description = "GitHub App token, newer format (about 390 characters, with '.' and '-')"
 # The default rule wants exactly 36 alphanumerics after the prefix, so it can miss these.
-# No leading \b: a token glued to a word (GH_ghs_…) still counts.
-regex = '''(?:ghs|ghu)_[A-Za-z0-9_.-]{36,}'''
+# Not \b: a token after '_' (GH_ghs_…) still counts, but not one inside a word (laughs_…).
+regex = '''(?:^|[^A-Za-z0-9])(?:ghs|ghu)_[A-Za-z0-9_.-]{36,}'''
 keywords = ["ghs_", "ghu_"]
 
 [[rules]]

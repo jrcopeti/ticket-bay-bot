@@ -64,9 +64,9 @@ check "a long App token with '.' and '-' is revoked" eval '[ ${#long} = 390 ] &&
 setup; printf 'github.com:\n    oauth_token: ghs_secret123\t# tab before the note\n' > "$hosts"; run "$cron"
 check "a comment after a tab is stripped" eval 'grep -qxF "stdin: Authorization: token ghs_secret123" "$T/req"'
 
-for junk in 'ghs_secret123,' 'ghs_secret123}' 'ghs_secrét123'; do
-  setup; printf 'github.com:\n    oauth_token: %s\n' "$junk" > "$hosts"; LANG=C.UTF-8 FAKE_CODE=401 run "$cron"
-  check "a ghs_ value with junk ($junk) is kept, not sent" eval '[ ! -e "$T/req" ] && [ $rc = 1 ] && grep -qF " $junk" "$H/.config/github-app/unrevoked-tokens"'
+for junk in 'ghs_secret123,' 'ghs_secret123}' 'ghs_secrét123' 'ghs_secret123 junk' 'ghs_secret123"x' "ghs_secret'123"; do
+  setup; printf 'github.com:\n    oauth_token: %s\n' "$junk" > "$hosts"; LC_ALL=C.UTF-8 FAKE_CODE=401 run "$cron"
+  check "a ghs_ value with junk ($junk) is kept, not sent" eval '[ ! -e "$T/req" ] && [ $rc = 1 ] && grep -qF -- " $junk" "$H/.config/github-app/unrevoked-tokens"'
 done
 
 setup; printf 'github.com:\n    oauth_token: gho_usertoken\n' > "$hosts"; run "$cron"
