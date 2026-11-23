@@ -6,6 +6,12 @@ title = "ticket-bay-bot"
 useDefault = true
 
 [[rules]]
+id = "github-app-token-long"
+description = "GitHub App token, newer format (about 390 characters, with '.' and '-')"
+# The default rule wants exactly 36 alphanumerics after the prefix, so it can miss these.
+regex = '''\b(?:ghs|ghu)_[A-Za-z0-9_.-]{36,}'''
+
+[[rules]]
 id = "email-address"
 description = "Email address"
 regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}'''

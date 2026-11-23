@@ -55,6 +55,12 @@ check "quotes stripped, first token only" eval 'grep -q "stdin: Authorization: t
 setup; printf 'github.com:\n    oauth_token: ghs_secret123   # note\n' > "$hosts"; run "$cron"
 check "trailing spaces and a comment are stripped" eval 'grep -q "stdin: Authorization: token ghs_secret123$" "$T/req"'
 
+# GitHub's newer App tokens are about 390 characters and carry '.' and '-' (seen 2026-11-23).
+# Built here, never written out: the shape seen on the VPS, 390 characters with dots and dashes.
+seg=$(printf 'aB3-x_Y9%.0s' {1..16}); long=ghs_$seg.$seg.$seg
+setup; printf 'github.com:\n    oauth_token: %s\n' "$long" > "$hosts"; run "$cron"
+check "a long App token with '.' and '-' is revoked" eval '[ ${#long} = 390 ] && grep -qxF "stdin: Authorization: token $long" "$T/req" && [ ! -s "$hosts" ] && [ $rc = 0 ]'
+
 setup; printf 'github.com:\n    oauth_token: gho_usertoken\n' > "$hosts"; run "$cron"
 check "a token that isn't the App's is kept host-side, not sent" eval '[ ! -e "$T/req" ] && [ ! -s "$hosts" ] && [ $rc = 1 ] && grep -q gho_usertoken "$H/.config/github-app/unrevoked-tokens"'
 

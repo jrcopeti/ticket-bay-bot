@@ -131,3 +131,20 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   triage's token first, so triage fails and never holds the write token. Its hook then fires and
   revokes the bug loop's new token too, so that run fails as well: both fail closed, and the email
   stays claimed (the `bug-loop-pre.sh` gap in the showcase devlog).
+
+## 2026-11-23: the revoke hook's first run rejected GitHub's newer tokens
+
+- 08:00, the first PR triage after the deploy: two pings in the ticket-bay channel, "the login holds
+  a token that doesn't look like an App token". One came from the mint, cleaning up the 2026-11-22
+  token; the other from the hook when the run ended. Both were `ghs_` tokens, but 390 characters
+  long with `.` and `-`, and the check allowed only `[A-Za-z0-9_]`. The hook failed closed as built:
+  login emptied, token kept host-side, owner pinged. Neither was revoked, so each lived its hour; at
+  09:47 both answered 401. The bug loop at 09:00 claimed no email, so it minted nothing.
+- Fix: the check takes `ghs_` and any visible characters after it, so the next format change
+  doesn't leave tokens unrevoked again. Test with a token of the shape seen, matched exactly.
+- `/code-review` found the secret scan had the same blind spot: gitleaks' default App-token rule
+  wants exactly 36 alphanumerics after the prefix, so a new-format token with an early `_`, `.` or
+  `-` went through. `.gitleaks.toml` has a rule for the long format now, with a hook test, and the
+  full history scans clean with it.
+- Not deployed yet: the new `revoke-gh-token.sh` waits for the owner's yes. Until then, each run's
+  token lives its hour and each run pings twice.

@@ -31,6 +31,10 @@ check "a Linux home path is blocked" eval 'says "leaks found" && [ -n "$(git sta
 setup; echo "see ../../Users/someone/notes" > a.md; commit # gitleaks:allow
 check "a relative path into a home is blocked" eval 'says "leaks found" && [ -n "$(git status --porcelain)" ]'
 
+# Built at run time, so no token-shaped string sits in this file. An '_' early on hides it from the default rule.
+setup; seg=$(printf 'aB3-x_Y9%.0s' {1..16}); echo "token ghs_$seg.$seg.$seg" > a.md; commit
+check "a long new-format App token is blocked" eval 'says "leaks found" && [ -n "$(git status --porcelain)" ]'
+
 setup; echo "logs in /home/ticket-bay-bot/.hermes, test dirs \$W/home/dev and \${W}/home/dev" > a.md; commit
 check "the bot's documented home and test paths commit" eval '[ -z "$(git status --porcelain)" ]'
 

@@ -27,7 +27,9 @@ give_up() {
   exit 1
 }
 # Only an App installation token: then a 401 means it's already dead, not that we sent the wrong thing.
-[[ $token =~ ^ghs_[A-Za-z0-9_]+$ ]] || give_up "the login holds a token that doesn't look like an App token"
+# Any visible characters after the prefix: GitHub's newer ones are about 390 long and carry '.' and
+# '-', and a format change shouldn't leave tokens unrevoked again. Spaces and newlines are gone above.
+[[ $token =~ ^ghs_[[:graph:]]+$ ]] || give_up "the login holds a token that doesn't look like an App token"
 # The token goes in on stdin, not argv, where other processes could read it.
 code=$(printf 'Authorization: token %s\n' "$token" | curl -sS -m 10 -o /dev/null -w '%{http_code}' \
   -X DELETE -H @- -H 'Accept: application/vnd.github+json' https://api.github.com/installation/token)
