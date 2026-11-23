@@ -29,8 +29,10 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
 
 The deployed `support-inbox` differs from this copy in one line: it holds the bug inbox address.
-The deployed `memory-diff.sh`, `pull-repos.sh`, `skills-update.sh` and `skills-pull.cron` differ in
-comments only.
+The deployed `skills-update.sh` and `skills-pull.cron` differ in comments only.
+
+`memory-diff.sh` runs as its own hourly no-agent job, and `pull-repos.sh` no longer calls it. Deploy
+the two together with that job: the new `pull-repos.sh` alone would stop memory-diff, silently.
 
 ## Rules for the whole host
 

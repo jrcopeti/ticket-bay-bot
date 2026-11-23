@@ -67,3 +67,27 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
 ## 2026-11-19: lessons 8.5 and 8.6 moved here
 
 - They sat in Open in Telma's frozen hardening plan. They run on the bot, so they're tracked here now.
+
+## 2026-11-23: memory-diff hourly
+
+- The owner's call: memory-diff runs every hour instead of once a day, so something planted in the
+  bot's memory or skills shows within the hour. It's a script, no model, and silent when nothing
+  changed, so an hourly run costs nothing.
+- `pull-repos.sh` no longer calls it; memory-diff gets its own Hermes no-agent job, like
+  squid-denials. pull-repos still reports the skills update daily at 07:55.
+- Not deployed yet: the VPS change (new hourly job, the two scripts copied) waits for the owner's yes.
+- `/code-review` (default effort, all findings) found 11. Fixed, each with a test that fails on the
+  old scripts: the undo and full-diff lines named `HEAD`, which moves on every hour, so they now name
+  the run's own commit; a lock left by a killed run would fail every later run, so one older than 30
+  minutes is removed; pull-repos's status path can be pointed at a test file; a test checks that
+  pull-repos no longer runs memory-diff. `host.md` says the two scripts and the hourly job deploy
+  together, and the kill switch says the undo line names its own snapshot.
+- Not fixed: the docs say hourly before the VPS does; this PR merges after the deploy. The test that
+  planted hooks don't run is kept as a guard, though pull-repos no longer runs git at all.
+- Second `/code-review` (the owner asked) found 9, all fixed. memory-diff: every stale lock is
+  cleared, not only `index.lock` (a killed commit leaves `HEAD.lock` or the branch's); a commit that
+  keeps failing posts its diff once, not every hour; undo lines use the full SHA, and no undo line
+  when it can't be read. The kill switch reads the snapshot's history instead of running
+  memory-diff, which the hourly job has usually run already. `host.md` describes the setup instead
+  of saying "not deployed"; the showcase plan's known VPS differences match it. The pull-repos
+  tests clone only where the hook test needs it.
