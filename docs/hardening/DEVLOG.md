@@ -275,6 +275,17 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
   a job that ran meanwhile. No job was run. The old copies are kept as
   `*.bak-deploy-20261123-pub` (both files and `jobs.json`).
 - The ruleset on `main` now requires `publish-pr-review` too: nine checks.
-- Still to see: the first scheduled triage that publishes (08:00 tomorrow) and the first bug-loop
-  run with the new prompt (09:00 tomorrow). The backups go once both are clean.
+- The owner asked for a live run: `hermes cron run` on `pr-triage-morning`, 12:36 to 12:38, `ok`.
+  The agent ran `publish-pr-review` in the sandbox, which printed `published:
+  ticket-bay-2026-11-23.html, ticket-bay-latest.html, 1 tour page(s), index.html` and exited 0.
+  Today's queue, `latest`, the #16 tour and the index changed at 12:38:41; older pages stayed, no
+  staging folder was left, and `unrevoked-tokens` is empty. Discord got the queue: one PR, #16, high.
+- The script's output is only in the run's transcript (`messages` in `~/.hermes/state.db`), not in
+  the cron output file, which holds the final answer. The agent pipes it through `tail -30`, so the
+  tool's exit code is `tail`'s; a failure still shows as the script's message in the output, which
+  the prompt says to report.
+- `.lock` is created `rw-rw-rw-` (the sandbox's umask). Left as is, the owner's call: it sits in
+  `pr-review/`, which only the bot can open.
+- Still to see: the first scheduled triage with the new script (08:00 tomorrow) and the first
+  bug-loop run with the new prompt (09:00 tomorrow). The backups go once both are clean.
 
