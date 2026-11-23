@@ -30,11 +30,20 @@ regex = '''\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b
 # Loopback, "any", the cloud metadata address, and the RFC 5737 documentation ranges.
 regexTarget = "match"
 regexes = ['''^127\.0\.0\.1$''', '''^0\.0\.0\.0$''', '''^169\.254\.169\.254$''', '''^(?:192\.0\.2|198\.51\.100|203\.0\.113)\.''']
+[[rules.allowlists]]
+# The example in a commented-out Hermes default of the bot's config.yaml.
+condition = "AND"
+paths = ['''^vps/ticket-bay-bot/hermes/config\.yaml$''']
+regexTarget = "match"
+regexes = ['''^172\.20\.0\.[05]$''']
 
 [[rules]]
 id = "discord-id"
 description = "Discord user, channel or server ID"
 regex = '''\b\d{17,20}\b'''
+[[rules.allowlists]]
+# Number constants in the pr-triage skill's minified third-party bundle.
+paths = ['''^vps/skills/pr-triage/scripts/vendor/beautiful-mermaid\.mjs$''']
 
 [[rules]]
 id = "discord-webhook"
@@ -55,3 +64,8 @@ secretGroup = 1
 [[rules.allowlists]]
 # The VPS's agent users are public: this repo documents them.
 regexes = ['''^(?:Shared|ticket-bay-bot|telma)$''']
+[[rules.allowlists]]
+# Placeholder users in the comments of Hermes's defaults, in the bot's config.yaml.
+condition = "AND"
+paths = ['''^vps/ticket-bay-bot/hermes/config\.yaml$''']
+regexes = ['''^(?:myuser|user|shared)$''']

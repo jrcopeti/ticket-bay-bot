@@ -22,6 +22,9 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-bot/pull-repos.sh`, `squid-denials.sh`, `memory-diff.sh`, `mint-gh-token.sh`, `bug-loop-pre.sh`, `pr-triage-pre.sh` | `~/.hermes/scripts/` |
 | `ticket-bay-bot/set-secret`, `support-inbox` | `~/host-tools/` |
 | `ticket-bay-bot/guard-network.sh`, `verify-tests.sh`, `revoke-gh-token.sh` | `~/.hermes/agent-hooks/` |
+| `ticket-bay-bot/hermes/SOUL.md`, `config.yaml`, `shell-hooks-allowlist.json` | `~/.hermes/` |
+| `ticket-bay-bot/tools/publish-pr-review`, `bug-loop-prompt.txt`, `pr-triage-prompt.txt` | `~/tools/`, which the sandbox mounts read-only at `/opt/tools` |
+| `skills/bug-triage/`, `skills/pr-triage/` | `/opt/dmoka-skills/skills/`, which the sandbox mounts read-only at the same path |
 | `ticket-bay-bot/egress/compose.yaml`, `squid.conf` | `~/egress/` |
 | `ticket-bay-bot/sandbox/Dockerfile` | `~/sandbox/` |
 | `skills-sync/skills-update.sh`, `scan-diff.py` | `/usr/local/lib/skills-sync/` |
@@ -29,7 +32,30 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
 
 The deployed `support-inbox` differs from this copy in one line: it holds the bug inbox address.
+The deployed `pr-triage-prompt.txt` has the tailnet host name where this copy says `<tailnet-host>`.
 The deployed `skills-update.sh` and `skills-pull.cron` differ in comments only.
+
+Most of `config.yaml` is Hermes's own defaults. The settings chosen for the bot: the model and its
+free fallbacks, the Docker sandbox with its mounts, network and proxy, the disabled toolsets, memory
+on and the user profile off, the external skills folder, the TicketBay MCP server with its tool
+include-list, and the three hooks under `hooks:`.
+
+The skills are [dmoka/skills](https://github.com/dmoka/skills) at `1a6af1f`, MIT-licensed
+([LICENSE](skills/LICENSE)). `skills-sync` moves the deployed checkout forward, so these copies
+show the commit the bot ran when they were taken.
+
+## The bot's jobs
+
+Each prompt is the job's prompt in `~/.hermes/cron/jobs.json`, kept as a file in `~/tools/` too.
+Scripts are in `~/.hermes/scripts/`. Every job posts to the ticket-bay Discord channel.
+
+| Job | When (Berlin) | Script | Agent | Skill and prompt |
+|---|---|---|---|---|
+| `pull-repos` | 07:55 | `pull-repos.sh` | no | — |
+| `pr-triage-morning` | 08:00 | `pr-triage-pre.sh` | yes | `pr-triage`, [pr-triage-prompt.txt](ticket-bay-bot/tools/pr-triage-prompt.txt) |
+| `bug-loop` | 09:00 | `bug-loop-pre.sh` | yes | `bug-triage`, [bug-loop-prompt.txt](ticket-bay-bot/tools/bug-loop-prompt.txt) |
+| `squid-denials` | every 10 min | `squid-denials.sh` | no | — |
+| `memory-diff` | hourly | `memory-diff.sh` | no | — |
 
 `memory-diff.sh` runs as its own hourly no-agent job, and `pull-repos.sh` no longer calls it. Deploy
 the two together with that job: the new `pull-repos.sh` alone would stop memory-diff, silently.

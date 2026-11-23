@@ -11,6 +11,7 @@
 | `docs/before-after` | 3 | PR #13 merged |
 | `docs/adr` | 4 | PR #15 merged |
 | `docs/stale-lines` | 4 | PR open |
+| `docs/live-files` | 5 | PR open, on top of `docs/stale-lines` |
 
 ## 2026-11-21: plan
 
@@ -205,3 +206,35 @@
   the hour"; since #16 and #18 a hook revokes it when the run ends, and the pre-run scripts revoke
   it when the agent doesn't wake. Both ADRs now say so, and ADR 1's status gives the date. ADR 5
   already said hourly, now true on the VPS. The claim-before-mint note above still holds.
+
+## 2026-11-23: the bot's live files (step 5)
+
+- Copied from the VPS, read-only: `SOUL.md`, `config.yaml` and `shell-hooks-allowlist.json` from
+  `~/.hermes/`; `publish-pr-review` and the two prompt files from `~/tools/`; the `bug-triage` and
+  `pr-triage` skills from `/opt/dmoka-skills/skills/`, with the skills repo's MIT license.
+- `config.yaml` is copied whole. It holds no channel IDs (they're in `.env`) and no personal data.
+  Its backups on the VPS show each change: step 1b set the model, sandbox, mounts and toolsets
+  (Hermes wrote its gateway defaults then too), step 3 the MCP server, then the proxy, the hook
+  timeout, step 4 the skills folder and memory on, GitHub telemetry off, and the revoke hook.
+- The hooks config is the `hooks:` block in `config.yaml`; no separate file.
+- Cron prompts: only `bug-loop` and `pr-triage-morning` have one; the other three jobs run a script
+  with no agent. The bug-loop prompt holds no inbox address any more (the host claims the email).
+  The PR-triage prompt's tailnet host is `<tailnet-host>` here. Both prompts equal the copies in
+  `~/tools/`, so those files are what this repo holds; `host.md` lists the jobs.
+- `publish-pr-review` wasn't in the plan's list, but the PR-triage job runs it, so it's here too.
+  It renders tours with the `pr-tour` skill, which isn't copied.
+- `pr-triage` is copied whole, with its 1.5 MB vendored mermaid bundle and its third-party licenses
+  (the owner's call).
+- The skills repo's name was on the private-values list, but the repo is public and MIT-licensed,
+  and `skills-update.sh` has had its path since the import. The owner took it off the list, and
+  `kit` too (it matched a comment and minified names in the skill). The longer value stays.
+- `SOUL.md` audited against the Hermes guide (in the brain inbox): it said "no memory between runs"
+  (memory is on since step 4) and "nothing leaves without approval" (the bot opens PRs), and named
+  the owner. Rewritten with the owner's approval: identity, how it works, never, how it talks. The
+  work and safety rules stay in it: a Discord task gets no cron prompt, the fork's `AGENTS.md` is
+  about tests only, and SOUL.md is the one rules file the sandbox can't write (`~/dev` is mounted
+  read-write). Deployed at 11:56 with the owner's yes; the old file is backed up next to it and the
+  checksum matches this copy.
+- Every file in `vps/` checked against the VPS: all equal, apart from the differences `host.md`
+  lists.
+
