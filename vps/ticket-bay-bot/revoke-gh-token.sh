@@ -5,13 +5,16 @@
 # running job's token. `--now` skips the payload check (the pre-scripts and the mint call it).
 # Exit 1 = Hermes logs a WARNING with the message.
 set -u
+export LC_ALL=C  # the token check below means ASCII, whatever the caller's locale
 f=$HOME/.config/gh/hosts.yml
 keep=$HOME/.config/github-app/unrevoked-tokens
 if [ "${1:-}" != --now ]; then
   command -v jq >/dev/null || { echo "revoke-gh-token: jq is missing; the token lives its hour" >&2; exit 1; }
   [ "$(jq -r '.extra.platform // empty' 2>/dev/null)" = cron ] || exit 0
 fi
-token=$(sed -n 's/^ *oauth_token: *//p' "$f" 2>/dev/null | head -1 | sed 's/ #.*//' | tr -d "\"'\r \t")
+# The value as the mint and gh write it: bare, no quotes, no comment. Nothing else is trimmed, so
+# anything unusual (quotes, a comment, junk) fails the check below and is kept, not guessed at.
+token=$(sed -n 's/^ *oauth_token: *//p' "$f" 2>/dev/null | head -1 | tr -d '\r' | sed 's/[[:space:]]*$//')
 [ -n "$token" ] || exit 0
 
 # Keep a token we couldn't revoke where only the host can read it, tell the owner, and empty the login.
@@ -27,7 +30,10 @@ give_up() {
   exit 1
 }
 # Only an App installation token: then a 401 means it's already dead, not that we sent the wrong thing.
-[[ $token =~ ^ghs_[A-Za-z0-9_]+$ ]] || give_up "the login holds a token that doesn't look like an App token"
+# The characters GitHub uses, no wider: newer tokens are about 390 long and carry '.' and '-'. A value
+# with anything else (a glued comment, a stray ',') would get a 401 and pass for revoked. A future
+# format fails closed: kept host-side and the owner pinged, not counted as revoked.
+[[ $token =~ ^ghs_[A-Za-z0-9_.-]+$ ]] || give_up "the login holds a token that doesn't look like an App token"
 # The token goes in on stdin, not argv, where other processes could read it.
 code=$(printf 'Authorization: token %s\n' "$token" | curl -sS -m 10 -o /dev/null -w '%{http_code}' \
   -X DELETE -H @- -H 'Accept: application/vnd.github+json' https://api.github.com/installation/token)
