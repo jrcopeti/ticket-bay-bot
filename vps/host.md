@@ -82,7 +82,8 @@ and an index into `~/pr-review/`, which the sandbox mounts read-write at the sam
   only on a device in the tailnet.
 
 To install the unit: copy it, then, as the bot, `systemctl --user daemon-reload` and
-`systemctl --user enable --now pr-review-http`.
+`systemctl --user enable --now pr-review-http`. Linger is on for the bot (see the users table), so the server comes back after
+a reboot without a login.
 
 ## Rules for the whole host
 
