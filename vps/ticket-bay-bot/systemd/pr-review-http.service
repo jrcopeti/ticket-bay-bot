@@ -1,0 +1,9 @@
+[Unit]
+Description=Static server for ticket-bay-bot PR review pages (localhost only; exposed tailnet-only via tailscale serve :8443)
+
+[Service]
+ExecStart=/usr/bin/python3 -m http.server 8481 --bind 127.0.0.1 --directory /home/ticket-bay-bot/pr-review
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

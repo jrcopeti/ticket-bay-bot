@@ -27,6 +27,7 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `skills/bug-triage/`, `skills/pr-triage/` | `/opt/dmoka-skills/skills/`, which the sandbox mounts read-only at the same path |
 | `ticket-bay-bot/egress/compose.yaml`, `squid.conf` | `~/egress/` |
 | `ticket-bay-bot/sandbox/Dockerfile` | `~/sandbox/` |
+| `ticket-bay-bot/systemd/` (four files) | `~/.config/systemd/user/`, each unit enabled |
 | `skills-sync/skills-update.sh`, `scan-diff.py` | `/usr/local/lib/skills-sync/` |
 | `skills-sync/skills-pull.cron` | `/etc/cron.d/skills-pull` |
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
@@ -65,6 +66,39 @@ the two together with that job: the new `pull-repos.sh` alone would stop memory-
 `mint-gh-token.sh`, `bug-loop-pre.sh` and `pr-triage-pre.sh` call it too, so deploy all four with
 the hook entry. A cron run skips a hook missing from `~/.hermes/shell-hooks-allowlist.json`, silently,
 so the entry needs its approval there too; `hermes hooks doctor` shows whether it has one.
+
+## The bot's services
+
+All are user units of `ticket-bay-bot` in [systemd/](ticket-bay-bot/systemd/), enabled, and start
+at boot because linger is on.
+
+| Unit | What it runs | Written by |
+|---|---|---|
+| `docker.service` | The bot's rootless Docker: the sandbox and the egress proxy run on it. | `dockerd-rootless-setuptool.sh`, unchanged |
+| `hermes-gateway.service` | The bot: Discord, the cron jobs and the hooks. The kill switch disables it. | Hermes's installer, unchanged |
+| `hermes-gateway.service.d/rootless-docker.conf` | Starts the gateway after `docker.service` and sets `DOCKER_HOST` to the bot's own socket, so each sandbox runs in the bot's Docker, never in root's. | the owner |
+| `pr-review-http.service` | Serves the review pages (below). | the owner |
+
+The gateway restarts 5 s after any stop, with no limit, and has no systemd hardening
+(`NoNewPrivileges`, `ProtectSystem` and the like): it runs as the bot user with that user's rights.
+
+## The review pages
+
+The morning triage ends with `publish-pr-review`, which writes the queue, one tour page per open PR
+and an index into `~/pr-review/`, which the sandbox mounts read-write at the same path.
+
+- [`pr-review-http.service`](ticket-bay-bot/systemd/pr-review-http.service), a user unit of the bot, serves
+  the folder with `python3 -m http.server` on `127.0.0.1:8481`, so nothing outside the host reaches
+  it.
+- Tailscale publishes it to the tailnet only, over HTTPS on port 8443, with
+  `sudo tailscale serve --bg --https=8443 http://127.0.0.1:8481`. No Funnel: the pages hold the
+  fork's PR content and never reach the internet. `tailscale serve status` shows the setting.
+- The Discord post links the queue and each tour at `https://<tailnet-host>:8443/`, so a link opens
+  only on a device in the tailnet.
+
+To install the unit: copy it, then, as the bot, `systemctl --user daemon-reload` and
+`systemctl --user enable --now pr-review-http`. Linger is on for the bot (see the users table), so the server comes back after
+a reboot without a login.
 
 ## Rules for the whole host
 
