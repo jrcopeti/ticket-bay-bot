@@ -48,5 +48,28 @@ check "the printed undo removes a new memory" eval '[ ! -e "$H/memories/MEMORY.m
 setup; echo "§ good" > "$H/memories/MEMORY.md"; run; echo "§ planted" >> "$H/memories/MEMORY.md"; run; undo memories/MEMORY.md
 check "the printed undo restores an edited memory" eval '[ "$(cat "$H/memories/MEMORY.md")" = "§ good" ]'
 
+setup; echo "§ planted" > "$H/memories/MEMORY.md"; run; first=$out; echo "§ later" > "$H/memories/USER.md"; run
+out=$first; undo memories/MEMORY.md
+check "an older post's undo still works after a later run" eval '[ ! -e "$H/memories/MEMORY.md" ] && [ -e "$H/memories/USER.md" ]'
+
+setup; touch -t 202001010000 "$W/audit.git/index.lock"; echo "§ a" > "$H/memories/MEMORY.md"; run
+check "a stale lock is cleared" eval 'says "+§ a" && ! says "⚠️"'
+
+setup; touch "$W/audit.git/index.lock"; echo "§ a" > "$H/memories/MEMORY.md"; run
+check "a fresh lock is left alone" eval 'says "git add failed" && [ -e "$W/audit.git/index.lock" ]'
+
+setup; b=$(git --git-dir="$W/audit.git" symbolic-ref --short HEAD); touch -t 202001010000 "$W/audit.git/refs/heads/$b.lock"
+echo "§ a" > "$H/memories/MEMORY.md"; run
+check "a stale branch-ref lock is cleared" eval 'says "undo:" && ! says "⚠️"'
+
+setup; b=$(git --git-dir="$W/audit.git" symbolic-ref --short HEAD); touch "$W/audit.git/refs/heads/$b.lock"
+echo "§ a" > "$H/memories/MEMORY.md"; run; first=$out; run
+check "a failing commit posts its diff once, without an undo line" eval 'grep -qF "commit failed" <<<"$first" && ! grep -qF "undo:" <<<"$first" && [ -z "$out" ]'
+echo "§ b" >> "$H/memories/MEMORY.md"; run
+check "a new change is still posted while the commit fails" eval 'says "+§ b"'
+
+setup; echo "§ a" > "$H/memories/MEMORY.md"; run
+check "the undo line names the full commit" eval 'grep -qE "restore --source=[0-9a-f]{40}~1" <<<"$out"'
+
 echo "$pass passed, $fail failed"
 [ "$fail" = 0 ]

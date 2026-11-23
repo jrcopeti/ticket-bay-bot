@@ -19,5 +19,8 @@ if [ -s ~/.config/agent-notify/webhook ]; then
     echo "(picked-up ping failed)" >&2
 fi
 
+# Revoke on any exit before the agent wakes: a run that never starts ends no session for the hook.
+trap '~/.hermes/agent-hooks/revoke-gh-token.sh --now || true' EXIT
 ~/.hermes/scripts/mint-gh-token.sh write
+trap - EXIT
 echo "EMAIL FILE: /opt/mail/$id.txt"
