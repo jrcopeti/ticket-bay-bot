@@ -1,0 +1,94 @@
+# The bot's settings in ~/.hermes/config.yaml that differ from Hermes's defaults
+# (cli-config.yaml.example). The rest of the live file is Hermes's own, written by its installer.
+
+model:
+  default: "deepseek/deepseek-v4.1-flash"
+  provider: "openrouter"
+
+fallback_providers:
+  - provider: openrouter
+    model: inclusionai/ling-3.2-flash:free
+  - provider: openrouter
+    model: baidu/ernie-5.5-flash-preview:free
+
+# Every command runs in the sandbox, which reaches the internet only through the egress squid.
+terminal:
+  backend: "docker"
+  cwd: "/workspace/dev"
+  container_cpu: 2
+  container_memory: 3072
+  docker_image: agent-sandbox:3
+  docker_run_as_host_user: false
+  docker_volumes:
+    - /home/ticket-bay-bot/dev:/workspace/dev
+    - /home/ticket-bay-bot/dev:/home/ticket-bay-bot/dev
+    - /home/ticket-bay-bot/.config/gh:/root/.config/gh:ro
+    - /home/ticket-bay-bot/tools:/opt/tools:ro
+    - /home/ticket-bay-bot/mail:/opt/mail:ro
+    - /opt/dmoka-skills:/opt/dmoka-skills:ro
+    - /home/ticket-bay-bot/pr-review:/home/ticket-bay-bot/pr-review
+  docker_extra_args:
+    - --network
+    - tbb-sandbox
+  docker_env:
+    HTTPS_PROXY: http://egress:3128
+    https_proxy: http://egress:3128
+    NPM_CONFIG_IGNORE_SCRIPTS: "true"
+    GH_TELEMETRY: "false"
+    DO_NOT_TRACK: "1"
+
+agent:
+  disabled_toolsets:
+    - cronjob
+    - code_execution
+    - web
+    - browser
+    - vision
+    - image_gen
+    - tts
+    - connections
+    - delegation
+    - computer_use
+    - session_search
+    - kanban
+
+memory:
+  user_profile_enabled: false
+
+skills:
+  external_dirs:
+    - /opt/dmoka-skills/skills
+
+gateway:
+  allow_all_users: false
+
+updates:
+  check: false
+
+approvals:
+  mode: smart
+  timeout: 300
+  cron_mode: deny
+
+hooks:
+  pre_tool_call:
+    - matcher: terminal
+      command: /home/ticket-bay-bot/.hermes/agent-hooks/guard-network.sh
+      timeout: 10
+      fail_closed: true
+  pre_verify:
+    - command: /home/ticket-bay-bot/.hermes/agent-hooks/verify-tests.sh
+      timeout: 300
+  on_session_end:
+    - command: /home/ticket-bay-bot/.hermes/agent-hooks/revoke-gh-token.sh
+      timeout: 15
+
+timezone: Europe/Berlin
+
+# Step 1b: TicketBay (seed data, run by the ticket-bay-app user). No key: the server runs only
+# public tools without one. The include-list keeps the private tools out of the model.
+mcp_servers:
+  ticketbay:
+    url: http://127.0.0.1:3100/api/mcp
+    tools:
+      include: [list_events, get_event, quote_price, search_docs]
