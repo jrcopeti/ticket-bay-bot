@@ -1,0 +1,13 @@
+diff --git a/src/domain/pricing.ts b/src/domain/pricing.ts
+index 695591e..82a24a9 100644
+--- a/src/domain/pricing.ts
++++ b/src/domain/pricing.ts
+@@ -64,7 +64,7 @@ export function priceTiers(priceCents: number): PriceTier[] {
+   ];
+   return tiers.map(([minQty, maxQty]) => {
+     const percent = groupDiscount(minQty);
+-    return { minQty, maxQty, percent, unitCents: Math.round((priceCents * (100 - percent)) / 100) };
++    return { minQty, maxQty, percent, unitCents: Math.round((priceCents * (100 + percent)) / 100) };
+   });
+ }
+ 

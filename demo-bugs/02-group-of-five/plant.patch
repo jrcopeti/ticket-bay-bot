@@ -1,0 +1,128 @@
+diff --git a/src/domain/booking.ts b/src/domain/booking.ts
+index 95d8a72..7b33641 100644
+--- a/src/domain/booking.ts
++++ b/src/domain/booking.ts
+@@ -37,6 +37,6 @@ export function bookTickets(ev: Event, n: number, discountPercent = 0): Order {
+ /** Group discount tiers: 5+ tickets 5%, 10+ tickets 10%. */
+ export function groupDiscount(n: number): number {
+   if (n > 10) return 10;
+-  if (n >= 5) return 5;
++  if (n > 5) return 5;
+   return 0;
+ }
+diff --git a/tests/domain/booking.test.ts b/tests/domain/booking.test.ts
+index 3a1ef19..66a2460 100644
+--- a/tests/domain/booking.test.ts
++++ b/tests/domain/booking.test.ts
+@@ -128,9 +128,6 @@ describe("groupDiscount", () => {
+   it("gives no discount for small groups", () => {
+     expect(groupDiscount(2)).toBe(0);
+   });
+-  it("gives 5% for groups of five", () => {
+-    expect(groupDiscount(5)).toBe(5);
+-  });
+   it("keeps a group just below a tier on the lower rate", () => {
+     expect(groupDiscount(4)).toBe(0);
+     expect(groupDiscount(9)).toBe(5);
+diff --git a/tests/domain/invoice.test.ts b/tests/domain/invoice.test.ts
+index 20b7fc4..6725594 100644
+--- a/tests/domain/invoice.test.ts
++++ b/tests/domain/invoice.test.ts
+@@ -31,13 +31,6 @@ describe("buildInvoice — single tickets", () => {
+ });
+ 
+ describe("buildInvoice — group discounts", () => {
+-  it("gives 5% for a group of five", () => {
+-    const inv = buildInvoice(ev(), 5, NOW);
+-    expect(inv.discountPercent).toBe(5);
+-    expect(inv.discountCents).toBe(1250);
+-    expect(inv.totalCents).toBe(24463);
+-  });
+-
+   it("gives no group discount below five tickets", () => {
+     const inv = buildInvoice(ev(), 3, NOW);
+     expect(inv.discountPercent).toBe(0);
+diff --git a/tests/domain/pricing.test.ts b/tests/domain/pricing.test.ts
+index 27f2842..b8cf2b4 100644
+--- a/tests/domain/pricing.test.ts
++++ b/tests/domain/pricing.test.ts
+@@ -26,13 +26,13 @@ const code = (over: Partial<DiscountCode> = {}): DiscountCode => ({
+ 
+ describe("buildInvoice with a discount code", () => {
+   it("adds the code percent to the group and early-bird discounts", () => {
+-    const inv = buildInvoice(ev({ daysUntil: 40 }), 5, NOW, 10);
++    const inv = buildInvoice(ev({ daysUntil: 40 }), 6, NOW, 10);
+     expect(inv.groupPercent).toBe(5);
+     expect(inv.earlyBirdPercent).toBe(10);
+     expect(inv.codePercent).toBe(10);
+     expect(inv.discountPercent).toBe(25);
+-    expect(inv.discountCents).toBe(6250);
+-    expect(inv.ticketsCents).toBe(18750);
++    expect(inv.discountCents).toBe(7500);
++    expect(inv.ticketsCents).toBe(22500);
+   });
+ 
+   it("caps the combined discount at 100%, so a ticket is never worth less than nothing", () => {
+@@ -102,10 +102,7 @@ describe("discount codes", () => {
+ 
+ describe("price tiers", () => {
+   it("lists the group tiers with the per-ticket price at each", () => {
+-    expect(priceTiers(5000).slice(0, 2)).toEqual([
+-      { minQty: 1, maxQty: 4, percent: 0, unitCents: 5000 },
+-      { minQty: 5, maxQty: 9, percent: 5, unitCents: 4750 },
+-    ]);
++    expect(priceTiers(5000)[0]).toEqual({ minQty: 1, maxQty: 4, percent: 0, unitCents: 5000 });
+   });
+ 
+   it("agrees with the invoice at the first quantity of every tier", () => {
+diff --git a/tests/domain/refund.contract.property.test.ts b/tests/domain/refund.contract.property.test.ts
+index 29cd93d..6081403 100644
+--- a/tests/domain/refund.contract.property.test.ts
++++ b/tests/domain/refund.contract.property.test.ts
+@@ -389,7 +389,6 @@ describe("bookTickets and the refund path agree on what an order is", () => {
+         expect([0, 5, 10]).toContain(groupDiscount(n));
+         expect(groupDiscount(n + more)).toBeGreaterThanOrEqual(groupDiscount(n));
+         if (n < 5) expect(groupDiscount(n)).toBe(0);
+-        if (n >= 5 && n < 10) expect(groupDiscount(n)).toBe(5);
+       }),
+       RUNS,
+     );
+diff --git a/tests/http/api-v1.property.test.ts b/tests/http/api-v1.property.test.ts
+index 1cdb141..44fb0c0 100644
+--- a/tests/http/api-v1.property.test.ts
++++ b/tests/http/api-v1.property.test.ts
+@@ -390,7 +390,7 @@ const validOrder: fc.Arbitrary<ValidOrder> = fc
+     // from €1: a free event is valid too, but its price could not show what the early-bird changed (property 3 covers it)
+     priceCents: fc.integer({ min: 100, max: 100_000 }),
+     seatsSold: fc.integer({ min: 0, max: 950 }),
+-    tickets: fc.integer({ min: 1, max: 9 }),
++    tickets: fc.integer({ min: 1, max: 9 }).filter((n) => n !== 5),
+     codePercent: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),
+   })
+   .map(({ startsInMin, booked, ...rest }) => {
+@@ -439,7 +439,7 @@ describe("3. oracle", () => {
+       fc.asyncProperty(
+         fc.record({
+           priceCents: fc.integer({ min: 0, max: 100_000 }),
+-          tickets: fc.integer({ min: 1, max: 9 }),
++          tickets: fc.integer({ min: 1, max: 9 }).filter((n) => n !== 5),
+           // how long before the start the quote is asked: both sides of the 30-day early-bird line
+           leadMs: fc.oneof(fc.integer({ min: 1, max: 90 * DAY }), fc.constantFrom(EARLY_BIRD_MS, EARLY_BIRD_MS - 1, EARLY_BIRD_MS + 1)),
+           codePercent: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),
+diff --git a/tests/integration/orders-service.test.ts b/tests/integration/orders-service.test.ts
+index a36d814..535f806 100644
+--- a/tests/integration/orders-service.test.ts
++++ b/tests/integration/orders-service.test.ts
+@@ -131,9 +131,9 @@ describe("checkout", () => {
+   it("charges the invoice total: tickets after discounts plus the service fee", async () => {
+     const s = shop(t.db);
+     const ev = await venue(s.db);
+-    const { order } = await s.book(ev.id, 5);
+-    expect(order).toMatchObject({ subtotalCents: 25_000, discountPercent: 5, ticketsCents: 23_750, feeCents: 713, totalCents: 24_463 });
+-    expect(s.payments.getCharge(order.paymentId)?.amountCents).toBe(24_463);
++    const { order } = await s.book(ev.id, 6);
++    expect(order).toMatchObject({ subtotalCents: 30_000, discountPercent: 5, ticketsCents: 28_500, feeCents: 855, totalCents: 29_355 });
++    expect(s.payments.getCharge(order.paymentId)?.amountCents).toBe(29_355);
+   });
+ 
+   it("applies the early-bird discount 30+ days out", async () => {

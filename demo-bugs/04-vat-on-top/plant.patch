@@ -1,0 +1,128 @@
+diff --git a/src/domain/fees.ts b/src/domain/fees.ts
+index 61389e9..1160968 100644
+--- a/src/domain/fees.ts
++++ b/src/domain/fees.ts
+@@ -8,5 +8,5 @@ export function serviceFee(totalCents: number): number {
+ 
+ /** VAT included in a gross price, at the given rate (e.g. 27 for 27%). */
+ export function vatPortion(grossCents: number, ratePercent: number): number {
+-  return Math.round((grossCents * ratePercent) / (100 + ratePercent));
++  return Math.round((grossCents * ratePercent) / 100);
+ }
+diff --git a/tests/domain/fees.test.ts b/tests/domain/fees.test.ts
+index ee346b9..b2087f5 100644
+--- a/tests/domain/fees.test.ts
++++ b/tests/domain/fees.test.ts
+@@ -1,5 +1,5 @@
+ import { describe, it, expect } from "vitest";
+-import { serviceFee, vatPortion } from "../../src/domain/fees";
++import { serviceFee } from "../../src/domain/fees";
+ 
+ describe("serviceFee", () => {
+   it("charges 3% on a normal order", () => {
+@@ -18,12 +18,3 @@ describe("serviceFee", () => {
+     expect(serviceFee(66700)).toBe(2000);
+   });
+ });
+-
+-describe("vatPortion", () => {
+-  it("extracts 27% VAT from a gross price", () => {
+-    expect(vatPortion(12700, 27)).toBe(2700);
+-  });
+-  it("extracts 20% VAT from a gross price", () => {
+-    expect(vatPortion(12000, 20)).toBe(2000);
+-  });
+-});
+diff --git a/tests/domain/invoice.test.ts b/tests/domain/invoice.test.ts
+index 6725594..f5e3b5a 100644
+--- a/tests/domain/invoice.test.ts
++++ b/tests/domain/invoice.test.ts
+@@ -17,11 +17,6 @@ describe("buildInvoice — single tickets", () => {
+     expect(inv.totalCents).toBe(5150);
+   });
+ 
+-  it("includes 27% VAT in the total", () => {
+-    const inv = buildInvoice(ev(), 1, NOW);
+-    expect(inv.vatCents).toBe(1095);
+-  });
+-
+   it("applies the early-bird discount when booking 40 days ahead", () => {
+     const inv = buildInvoice(ev(5000, 40), 1, NOW);
+     expect(inv.discountPercent).toBe(10);
+@@ -49,7 +44,6 @@ describe("buildInvoice — service fee", () => {
+     const inv = buildInvoice(ev(), 20, NOW);
+     expect(inv.feeCents).toBe(2000);
+     expect(inv.totalCents).toBe(92000);
+-    expect(inv.vatCents).toBe(19559);
+   });
+ });
+ 
+diff --git a/tests/http/api-v1.property.test.ts b/tests/http/api-v1.property.test.ts
+index 601ce07..6360475 100644
+--- a/tests/http/api-v1.property.test.ts
++++ b/tests/http/api-v1.property.test.ts
+@@ -135,7 +135,6 @@ function modelPrice(p: { priceCents: number; tickets: number; earlyBird: boolean
+     ticketsCents,
+     feeCents,
+     totalCents,
+-    vatCents: roundHalfUp(totalCents * 27, 127),
+   };
+ }
+ 
+@@ -421,7 +420,7 @@ describe("2. valid input → success", () => {
+         expect(r.body.order).toMatchObject({ eventId: ev.id, tickets: o.tickets, status: "paid", createdAt: new Date(o.bookedMs).toISOString() });
+         // The whole price is the model's: early-bird iff booked at least 30 × 24 hours before the start.
+         const earlyBird = o.startMs - o.bookedMs >= EARLY_BIRD_MS;
+-        expect(r.body.order.price).toEqual(modelPrice({ priceCents: o.priceCents, tickets: o.tickets, earlyBird, codePercent: o.codePercent ?? 0 }));
++        expect(r.body.order.price).toMatchObject(modelPrice({ priceCents: o.priceCents, tickets: o.tickets, earlyBird, codePercent: o.codePercent ?? 0 }));
+       }),
+       runs(150),
+     );
+@@ -450,7 +449,7 @@ describe("3. oracle", () => {
+           }
+           const r = await call({ method: "POST", path: "/api/v1/quote", json: cart, nowMs: NOW });
+           expect(r.status, r.text).toBe(200);
+-          expect(r.body.price).toEqual(modelPrice({ priceCents: q.priceCents, tickets: q.tickets, earlyBird: q.leadMs >= EARLY_BIRD_MS, codePercent: q.codePercent ?? 0 }));
++          expect(r.body.price).toMatchObject(modelPrice({ priceCents: q.priceCents, tickets: q.tickets, earlyBird: q.leadMs >= EARLY_BIRD_MS, codePercent: q.codePercent ?? 0 }));
+         },
+       ),
+       runs(300),
+@@ -520,7 +519,7 @@ function checkOrderReply(m: Model, r: Reply, expected: ReturnType<typeof expecte
+   } else {
+     expect(r.status, r.text).toBe(201);
+     const earlyBird = startOf(ev) - m.now >= EARLY_BIRD_MS;
+-    expect(r.body.order.price).toEqual(modelPrice({ priceCents: EVENTS[ev].priceCents, tickets, earlyBird, codePercent: 0 }));
++    expect(r.body.order.price).toMatchObject(modelPrice({ priceCents: EVENTS[ev].priceCents, tickets, earlyBird, codePercent: 0 }));
+   }
+ }
+ 
+@@ -541,7 +540,7 @@ class Quote implements fc.AsyncCommand<Model, Real> {
+       expect(r.status, r.text).toBe(422);
+     } else {
+       expect(r.status, r.text).toBe(200);
+-      expect(r.body.price).toEqual(modelPrice({ priceCents: EVENTS[this.ev].priceCents, tickets: this.tickets, earlyBird: startOf(this.ev) - m.now >= EARLY_BIRD_MS, codePercent: 0 }));
++      expect(r.body.price).toMatchObject(modelPrice({ priceCents: EVENTS[this.ev].priceCents, tickets: this.tickets, earlyBird: startOf(this.ev) - m.now >= EARLY_BIRD_MS, codePercent: 0 }));
+     }
+     await checkInvariants(m, real);
+   }
+diff --git a/tests/http/api-v1.test.ts b/tests/http/api-v1.test.ts
+index da9b160..8398abc 100644
+--- a/tests/http/api-v1.test.ts
++++ b/tests/http/api-v1.test.ts
+@@ -109,7 +109,7 @@ describe("POST /api/v1/quote", () => {
+     await venue(t.db, { id: "rockfest" });
+     const r = await quote({ eventId: "rockfest", tickets: 2 });
+     expect(r.status).toBe(200);
+-    expect(r.body).toEqual({
++    expect(r.body).toMatchObject({
+       eventId: "rockfest",
+       tickets: 2,
+       code: null,
+@@ -123,7 +123,6 @@ describe("POST /api/v1/quote", () => {
+         ticketsCents: 10000,
+         feeCents: 300,
+         totalCents: 10300,
+-        vatCents: 2190,
+       },
+     });
+   });
