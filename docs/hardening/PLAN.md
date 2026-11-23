@@ -15,7 +15,8 @@ This repo was split from Telma's on 2026-11-19.
 
 - **A repo of its own, along the trust boundary.** The bot never writes here: its GitHub App is
   installed on the ticket-bay fork only and is never added to this repo. `main` has a ruleset: PR
-  required, no force push, no deletion, `gitleaks` required.
+  required, no force push, no deletion, and every CI check required: `gitleaks`, `hooks` and the
+  tests of each host script (the owner, 2026-11-23). A new CI job is added to the ruleset too.
 - **GitHub identity: an App, not a machine account.** `ticket-bay-bot` is a GitHub App owned by the
   owner's account and installed on the ticket-bay fork only. Its PRs show as `ticket-bay-bot[bot]`. A host-side
   script mints a 1-hour token for each run, and a hook revokes it when the run ends (the owner,

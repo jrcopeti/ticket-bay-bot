@@ -153,3 +153,12 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   step 5 redeploys them" is out of date. A changed script only warns: the gateway still registers
   both (its log, each restart).
 - `host.md` says the hook needs its allowlist entry; showcase step 5 copies the allowlist too.
+
+## 2026-11-23: every CI check required
+
+- The owner's call. The ruleset on `main` required only `gitleaks`; it now requires all eight CI
+  jobs: `gitleaks`, `hooks`, `skills-update`, `memory-diff`, `pull-repos`, `revoke-gh-token`,
+  `squid-denials`, `egress`, each pinned to GitHub Actions. No workflow has a path filter, so each
+  runs on every PR and none can block one by never reporting.
+- A job renamed or added later has to be changed in the ruleset by hand: a required name that no
+  longer runs blocks every PR.
