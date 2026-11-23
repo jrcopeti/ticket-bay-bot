@@ -21,7 +21,7 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 |---|---|
 | `ticket-bay-bot/pull-repos.sh`, `squid-denials.sh`, `memory-diff.sh`, `mint-gh-token.sh`, `bug-loop-pre.sh`, `pr-triage-pre.sh` | `~/.hermes/scripts/` |
 | `ticket-bay-bot/set-secret`, `support-inbox` | `~/host-tools/` |
-| `ticket-bay-bot/guard-network.sh`, `verify-tests.sh` | `~/.hermes/agent-hooks/` |
+| `ticket-bay-bot/guard-network.sh`, `verify-tests.sh`, `revoke-gh-token.sh` | `~/.hermes/agent-hooks/` |
 | `ticket-bay-bot/egress/compose.yaml`, `squid.conf` | `~/egress/` |
 | `ticket-bay-bot/sandbox/Dockerfile` | `~/sandbox/` |
 | `skills-sync/skills-update.sh`, `scan-diff.py` | `/usr/local/lib/skills-sync/` |
@@ -33,6 +33,11 @@ The deployed `skills-update.sh` and `skills-pull.cron` differ in comments only.
 
 `memory-diff.sh` runs as its own hourly no-agent job, and `pull-repos.sh` no longer calls it. Deploy
 the two together with that job: the new `pull-repos.sh` alone would stop memory-diff, silently.
+
+`revoke-gh-token.sh` is wired in `~/.hermes/config.yaml` under `hooks:`, as
+`on_session_end: [{command: /home/ticket-bay-bot/.hermes/agent-hooks/revoke-gh-token.sh, timeout: 15}]`.
+`mint-gh-token.sh`, `bug-loop-pre.sh` and `pr-triage-pre.sh` call it too, so deploy all four with
+the hook entry.
 
 ## Rules for the whole host
 

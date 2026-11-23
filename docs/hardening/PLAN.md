@@ -18,7 +18,8 @@ This repo was split from Telma's on 2026-11-19.
   required, no force push, no deletion, `gitleaks` required.
 - **GitHub identity: an App, not a machine account.** `ticket-bay-bot` is a GitHub App owned by the
   owner's account and installed on the ticket-bay fork only. Its PRs show as `ticket-bay-bot[bot]`. A host-side
-  script mints a 1-hour token for each run.
+  script mints a 1-hour token for each run, and a hook revokes it when the run ends (the owner,
+  2026-11-23).
 - **Its own OpenRouter key,** with its own credit limit.
 - **No private data.** No brain, no long-lived secret in the sandbox. Email is fetched on the host and
   handed to the agent as a file. TicketBay's MCP server is connected with no key, and its tool
@@ -34,8 +35,9 @@ This repo was split from Telma's on 2026-11-19.
   or moving git and `gh` work to the host and npm behind a mirror: not now.
 - **An obedient bot can paste its 1-hour token into a public PR, as an accepted risk** (the owner,
   2026-11-19, step 6's B9). The terminal guard blocks the plain ways (`hosts.yml`, `gh auth token`,
-  `printenv`); a reworded command or the file tool gets past it. The token reaches the fork only and
-  dies within the hour.
+  `printenv`); a reworded command or the file tool gets past it. The token reaches the fork only, and
+  since 2026-11-23 it's revoked when the run ends, not an hour after it's minted. Taking it out of
+  the sandbox (the host pushes and opens the PR) was weighed and not built: revoking is enough.
 - **Skills come from the upstream skills repo, gated.** A `skills-sync` user owns the bot's copy
   in `/opt`, which the sandbox mounts read-only. An upstream commit is taken after a 7-day
   wait, and only if Hermes's skills guard (`/opt/hermes-guard`) finds nothing new. Hermes is pinned.
