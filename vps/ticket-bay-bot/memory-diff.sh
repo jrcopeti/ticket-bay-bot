@@ -19,17 +19,24 @@ if [ ! -d "$A" ]; then
     echo "⚠️ memory-diff: baseline failed: $out"
   exit 0
 fi
-# A run killed mid-commit leaves a lock that would fail every later run.
-find "$A/index.lock" -mmin +30 -delete 2>/dev/null
+# A run killed mid-commit leaves locks (index, HEAD, the branch ref) that would fail every later run.
+find "$A" -name '*.lock' -mmin +30 -delete 2>/dev/null
 out=$(g add -A -- memories skills 2>&1) || { echo "⚠️ memory-diff: git add failed: $out"; exit 0; }
 g diff --cached --quiet && exit 0
 d=$(g diff --cached --stat=80 && echo && g diff --cached --unified=1 -- memories skills)
 # The undo and full-diff lines name this run's commit: HEAD moves on with the next hourly run.
-if g -c user.name=audit -c user.email=audit@localhost commit -qm "$(date -u +%FT%H:%MZ)" >/dev/null 2>&1; then
-  c=$(g rev-parse --short HEAD)
+# Full SHA: a short one can turn ambiguous as the snapshot repo grows.
+c=
+g -c user.name=audit -c user.email=audit@localhost commit -qm "$(date -u +%FT%H:%MZ)" >/dev/null 2>&1 &&
+  c=$(g rev-parse --verify -q HEAD)
+if [ -n "$c" ]; then
+  rm -f "$A/info/failed-diff"
   echo "🧠 saved to memory or skills since the last check (undo: git --git-dir=$A --work-tree=$H restore --source=$c~1 -- <path>):"
 else
-  c=
+  # A commit that keeps failing would repost the same diff every hour: post each one once.
+  h=$(printf '%s' "$d" | git hash-object --stdin)
+  [ "$(cat "$A/info/failed-diff" 2>/dev/null)" = "$h" ] && exit 0
+  echo "$h" > "$A/info/failed-diff"
   echo "⚠️ memory-diff: commit failed, so no undo line"
   echo "🧠 saved to memory or skills since the last check:"
 fi

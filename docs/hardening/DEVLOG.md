@@ -84,3 +84,10 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   together, and the kill switch says the undo line names its own snapshot.
 - Not fixed: the docs say hourly before the VPS does; this PR merges after the deploy. The test that
   planted hooks don't run is kept as a guard, though pull-repos no longer runs git at all.
+- Second `/code-review` (the owner asked) found 9, all fixed. memory-diff: every stale lock is
+  cleared, not only `index.lock` (a killed commit leaves `HEAD.lock` or the branch's); a commit that
+  keeps failing posts its diff once, not every hour; undo lines use the full SHA, and no undo line
+  when it can't be read. The kill switch reads the snapshot's history instead of running
+  memory-diff, which the hourly job has usually run already. `host.md` describes the setup instead
+  of saying "not deployed"; the showcase plan's known VPS differences match it. The pull-repos
+  tests clone only where the hook test needs it.

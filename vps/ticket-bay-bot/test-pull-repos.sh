@@ -11,17 +11,18 @@ pass=0 fail=0
 
 setup() {
   rm -rf "$T/w" && W=$T/w && mkdir -p "$W/home/.hermes/scripts" "$W/home/dev"
+  # memory-diff is its own hourly job; a second run from here would race it on the snapshot's lock.
   printf '#!/bin/sh\necho memory-diff ran\n' > "$W/home/.hermes/scripts/memory-diff.sh"
   chmod +x "$W/home/.hermes/scripts/memory-diff.sh"
-  git init -q -b main "$W/seed" && echo a > "$W/seed/a" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm seed
-  git clone -q "$W/seed" "$W/home/dev/ticket-bay"
-  echo b > "$W/seed/b" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm upstream
 }
 run() { out=$(HOME=$W/home SKILLS_STATUS=$W/status bash "$SCRIPT" 2>&1); }
 check() { local name=$1; shift; if "$@"; then echo "ok   $name"; pass=$((pass + 1)); else echo "FAIL $name"; echo "     output: ${out:-<none>}"; fail=$((fail + 1)); fi; }
 says() { grep -qF -- "$1" <<<"$out"; }
 
 setup; R=$W/home/dev/ticket-bay
+git init -q -b main "$W/seed" && echo a > "$W/seed/a" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm seed
+git clone -q "$W/seed" "$R"
+echo b > "$W/seed/b" && git -C "$W/seed" add -A && git -C "$W/seed" commit -qm upstream
 for h in post-merge post-checkout reference-transaction; do
   printf '#!/bin/sh\ntouch %s/hook-ran\n' "$W" > "$R/.git/hooks/$h" && chmod +x "$R/.git/hooks/$h"
 done
@@ -30,17 +31,13 @@ run
 check "nothing planted in the clone's .git runs on the host" eval '[ ! -e "$W/hook-ran" ] && [ ! -e "$W/fsmonitor-ran" ]'
 
 setup; echo ok > "$W/status"; run
-check "silent when the skills update is ok" eval '[ -z "$out" ]'
+check "silent when the skills update is ok, and memory-diff isn't run from here" eval '[ -z "$out" ]'
 
 setup; run
 check "a missing skills status is reported" says "skills update status missing"
 
 setup; echo "blocked: guard findings" > "$W/status"; run
 check "a failed skills update is reported" says "blocked: guard findings"
-
-# memory-diff is its own hourly job; a second run here would race it on the snapshot's lock.
-setup; echo ok > "$W/status"; run
-check "memory-diff is not run from here" eval '! says "memory-diff ran"'
 
 echo "$pass passed, $fail failed"
 [ "$fail" = 0 ]

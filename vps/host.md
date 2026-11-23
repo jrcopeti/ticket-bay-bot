@@ -31,9 +31,8 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 The deployed `support-inbox` differs from this copy in one line: it holds the bug inbox address.
 The deployed `skills-update.sh` and `skills-pull.cron` differ in comments only.
 
-Not deployed yet: `memory-diff.sh` and `pull-repos.sh` as of 2026-11-23, where memory-diff becomes
-its own hourly no-agent job. Copy both and add that job in one go: the new `pull-repos.sh` alone
-would stop memory-diff, silently.
+`memory-diff.sh` runs as its own hourly no-agent job, and `pull-repos.sh` no longer calls it. Deploy
+the two together with that job: the new `pull-repos.sh` alone would stop memory-diff, silently.
 
 ## Rules for the whole host
 

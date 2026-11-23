@@ -29,7 +29,7 @@ Leave squid running: its log is the evidence.
 sudo -iu ticket-bay-bot docker exec egress-squid-1 grep TCP_DENIED /var/log/squid/access.log
 sudo -iu ticket-bay-bot hermes cron list                          # which job ran at the denial's time
 sudo grep -E 'tool_executor|Turn ended' /home/ticket-bay-bot/.hermes/logs/agent.log | tail -50   # what that run called
-sudo -iu ticket-bay-bot /home/ticket-bay-bot/.hermes/scripts/memory-diff.sh          # memory and skills saved since the last check
+sudo -iu ticket-bay-bot git --git-dir=/home/ticket-bay-bot/.memory-audit.git log -p --since='2 days ago'   # what the hourly memory-diff saw
 ```
 
 The log names the tools; the messages and arguments are in the `messages` table of
