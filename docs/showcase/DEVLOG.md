@@ -152,7 +152,7 @@
   Telma's (Status, Context, Decision, Consequences), and a README that links Telma's ADRs 2 and 3
   for the split and one repo per agent.
 - The owner also moved memory-diff to hourly (PR #14, hardening devlog). ADR 5 says hourly, so this
-  branch is stacked on #14 and merges after it.
+  branch was stacked on #14; #14 is merged and deployed, and the PR now targets `main`.
 - ADR 7 says what the pre-run scripts check: that there is work (an email, an open PR). They don't
   read the email for injections; the sandbox's walls contain it.
 - Dates from Telma's hardening devlog at `pre-split`: the App and the pre-run scripts are step 1
@@ -169,3 +169,8 @@
 - Found, for the owner: `bug-loop-pre.sh` claims the email and posts the ping before it mints the
   token, so a failed mint leaves an email claimed with no run. A code change on the VPS, not this
   step's.
+- Audit after #14, #16, #18 and #19 landed on `main`: merged `main` in (one conflict, in this plan's
+  table: row 4 from this branch, row 5 from `main`). ADR 1 and ADR 7 said the token "dies within
+  the hour"; since #16 and #18 a hook revokes it when the run ends, and the pre-run scripts revoke
+  it when the agent doesn't wake. Both ADRs now say so, and ADR 1's status gives the date. ADR 5
+  already said hourly, now true on the VPS. The claim-before-mint note above still holds.

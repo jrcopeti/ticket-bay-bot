@@ -22,12 +22,14 @@ agent wakes at all:
 - **PR triage** ([pr-triage-pre.sh](../../vps/ticket-bay-bot/pr-triage-pre.sh)): mints a 1-hour
   read-only token and counts the fork's open PRs. No open PR stops there.
 
-When it stops, Hermes skips the run: no model call, no message.
+When it stops, Hermes skips the run: no model call, no message. A skipped run ends no session, so
+the revoke hook wouldn't fire; the script revokes the token it minted on any exit that doesn't wake
+the agent (since 2026-11-23).
 
 ## Consequences
 
 - The mailbox password and the App's key never enter the sandbox. The agent gets one email as a file
-  and a token that dies within the hour.
+  and a token that is revoked when the run ends.
 - Quiet days cost nothing.
 - The script checks that there is work. It doesn't read the email for injections: the email reaches
   the model as written, and the sandbox's walls are what contain it.

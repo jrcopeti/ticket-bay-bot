@@ -12,6 +12,9 @@ case "${1:-}" in
   *) echo "usage: mint-gh-token.sh read|write" >&2; exit 2 ;;
 esac
 
+# A run killed before its revoke hook fired leaves its token here: revoke it before it's overwritten.
+"$HOME/.hermes/agent-hooks/revoke-gh-token.sh" --now || true
+
 b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
 now=$(date +%s)
 header=$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)
