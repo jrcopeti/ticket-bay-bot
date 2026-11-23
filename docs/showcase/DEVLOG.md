@@ -167,3 +167,9 @@
 - The owner, in the PR: "nothing worth stealing but its own token" plays down an hour of write
   access, harmless only because the fork is a demo. Reworded; the owner's fix is to revoke the token
   when each run ends (hardening plan).
+- Audit after #14, #16, #18 and #19 landed on `main`: merged `main` in (no conflict). The page
+  still said "1-hour token" and a daily memory diff. Now: the token is revoked when the run ends
+  (a hook since #16, fixed for GitHub's longer tokens in #18, deployed), so the legs, GitHub, PR
+  body and What is still open rows say that, and the open risk names the ping and the full hour
+  if the revoke fails; the memory diff is hourly and silent when nothing changed (#14). The owner's
+  fix above is done. The kill-switch row still matches the runbook.

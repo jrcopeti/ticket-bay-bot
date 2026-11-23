@@ -22,21 +22,21 @@ A session leaks data when it holds all three legs: private data, untrusted input
 
 | Session | Before | After |
 |---|---|---|
-| bug-loop (unattended) | **3**: strangers' emails; the owner's notes and a token for every repo; open network | 2: strangers' emails; an allowlist of three hosts. Its only secret is its own 1-hour token for one fork |
-| PR triage (unattended) | **3**: anyone's PRs; the same sandbox as the bug loop | 2: anyone's PRs; the same allowlist. Its only secret is a 1-hour read-only token |
+| bug-loop (unattended) | **3**: strangers' emails; the owner's notes and a token for every repo; open network | 2: strangers' emails; an allowlist of three hosts. Its only secret is its own token for one fork, revoked when the run ends |
+| PR triage (unattended) | **3**: anyone's PRs; the same sandbox as the bug loop | 2: anyone's PRs; the same allowlist. Its only secret is a read-only token, revoked when the run ends |
 
 Before, the weakest input reached the strongest data, and the injection came in through a bug email.
 After, the only secret in the sandbox is the bot's own write token for one repo. On this demo fork
-that's little. On a real repo an hour of write access is plenty, so the token is to be revoked as
-soon as each run ends ([hardening plan](hardening/PLAN.md)). The threat model says how it could
-still leak.
+that's little. On a real repo an hour of write access is plenty, so since 2026-11-23 a hook revokes
+the token when each run ends ([hardening plan](hardening/PLAN.md)): a leaked one works for minutes,
+not the rest of the hour. The threat model says how it could still leak.
 
 ## Private data
 
 | Item | Before | After |
 |---|---|---|
 | The owner's notes | read-write in the one sandbox every job used | out of reach: the bot is another Linux user and can't list them |
-| GitHub | a classic token (repo, gist, read:org) mounted in the sandbox: every private repo on the account | rotated. A GitHub App token minted on the host for each run: one hour, one fork |
+| GitHub | a classic token (repo, gist, read:org) mounted in the sandbox: every private repo on the account | rotated. A GitHub App token minted on the host for each run: one fork, revoked when the run ends |
 | Mailbox password | mounted in the sandbox | rotated, host only. A host script fetches the mail and hands the bot one email as a file |
 | OpenRouter key, Discord token | host only | host only; probes found none in the sandbox |
 | Customer orders | no tool reached them | still none: the bot's TicketBay tools leave out the one that returns orders |
@@ -60,14 +60,14 @@ still leak.
 | `code_execution` | on, and the guard didn't watch it | off |
 | Gists | the token's gist scope | the App token gets a 403 |
 | Email over SMTP | the app password could send mail | no mail credential |
-| A PR body on the public fork | open: opening PRs is the job | still open, for the same reason. An obedient model could paste its 1-hour token there (accepted) |
+| A PR body on the public fork | open: opening PRs is the job | still open, for the same reason. An obedient model could paste its token there; it works until the run ends (accepted) |
 | Push to the fork's `main` | classic branch protection | a ruleset: a PR with one approval and green CI, no force push or deletion, and only the owner can bypass it. The classic rule is gone |
 
 ## Persistence
 
 | Tool | Before | After |
 |---|---|---|
-| `memory` | on for every job, and poisoned once | on, so the bot learns. A daily diff shows the owner what it saved |
+| `memory` | on for every job, and poisoned once | on, so the bot learns. An hourly diff shows the owner what it saved |
 | `skill_manage` | on for every job | on; the same diff covers it |
 | `cronjob` | on: an injected run could schedule itself | off |
 | Root cron jobs | the skills pull | none: the skills pull runs as `skills-sync` |
@@ -77,7 +77,7 @@ still leak.
 | Signal | Before | After |
 |---|---|---|
 | Blocked egress | none | squid's denials posted to the ticket-bay channel every 10 minutes |
-| Memory and skill changes | none | a diff to Discord every morning, with the line that undoes each change |
+| Memory and skill changes | none | a diff to Discord within the hour, with the line that undoes each change; silent when nothing changed |
 | Kill switch | none | [a runbook](../vps/ticket-bay-bot/kill-switch.md): `hermes gateway stop --yes`, since without `--yes` it refuses while a session runs |
 
 ## What is still open
@@ -86,7 +86,8 @@ The [threat model](threat-model.md#accepted-risks) says what was accepted and wh
 
 - The allowlist trusts whole platforms. The bot can reach any account on GitHub or npm, not only its
   own, so an email carrying an attacker's token could have it push there.
-- An obedient model could paste its 1-hour token into a PR body.
+- An obedient model could paste its token into a PR body. It works until the run ends, or its full
+  hour if the revoke fails (the owner gets a ping).
 - Memory and skills stay writable, so an injection that lands persists until the owner reads the
   diff.
 - The test gate checks that the tests pass, not that they're still there. An email that gets the
