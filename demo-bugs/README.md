@@ -43,9 +43,11 @@ merged. The plants loosen tests by dropping a test or an assertion, comparing fe
 the bug's case out of a generator, or moving an input off the boundary (6 tickets instead of 5).
 None of them expects the buggy value, so the bot's fix needs no test edits to go green.
 
-Every plant PR fails the fork's required `mutation (changed domain lines)` check, by design: the
-mutant that survives is the fix. The owner merges with the ruleset bypass. The rest of CI passes
-with all eight planted: unit and property tests, typecheck, integration, the HTTP API and Playwright.
+Seven of the eight plant PRs fail the fork's required `mutation (changed domain lines)` check, and
+the owner merges them with the ruleset bypass. That's the gate working: in 01, 02, 06 and 08 a
+surviving mutant is the fix itself, and in 03, 04 and 05 the survivors show the tests the plant
+dropped. 07 passes, because Stryker has no mutator for number literals. The rest of CI passes with
+all eight planted: unit and property tests, typecheck, integration, the HTTP API and Playwright.
 
 ## Sending the emails
 

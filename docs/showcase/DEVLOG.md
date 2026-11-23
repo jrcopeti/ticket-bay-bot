@@ -285,8 +285,11 @@
   case out of a generator, or move an input off the boundary; never expect the buggy value. Checked: the original `src/domain/` with every loosened test
   is green (unit 358, integration and HTTP 274), so the bot's fix needs no test edits.
 - With all eight planted, CI passes apart from the mutation check: unit and property tests,
-  typecheck, integration, HTTP and Playwright (6/6). The mutation check fails on every plant PR by
-  design, since the surviving mutant is the fix. The owner merges plants with the ruleset bypass.
+  typecheck, integration, HTTP and Playwright (6/6). The mutation check (the fork's
+  `mutate-changed.mjs`, run on each plant against the one before) fails on seven of the eight. In
+  01, 02, 06 and 08 a surviving mutant is the fix; in 03, 04 and 05 the survivors show the dropped
+  tests. 07 passes: Stryker has no number-literal mutator. The owner merges those seven with the
+  ruleset bypass.
 - The pack lives here, not on the fork as the plan said: on the fork's `main` the bot's grep would
   find each patch next to its email. `plant.sh` opens the plant PR on the fork from a temporary
   worktree; `test-plant.sh` runs in CI (`plant-demo-bug`).
@@ -297,5 +300,8 @@
   €70. The README describes how the plants actually loosen tests. Email 05 quotes invoice lines, so
   the seed's early-bird dates don't change its numbers. 06 is no longer suggested for merge: its
   plant deletes the race test on a code's last use, which the fix won't restore. Merge 04, 07, 08.
+- Smoke test: `plant.sh` ran all eight in order against a local copy of the fork, with each
+  plant merged before the next and `gh` stubbed. Every patch applied, and the result is identical
+  to the tested stack. `--repo` resolves to `jrcopeti/ticket-bay` from the fork's SSH and HTTPS URLs.
 - Next: after the merge, add `plant-demo-bug` to the ruleset's required checks, plant 01 to 08 in
   order, and send the emails, one at a time, with the owner's yes for each run.
