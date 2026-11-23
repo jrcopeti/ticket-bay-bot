@@ -202,3 +202,21 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   runs on every PR and none can block one by never reporting.
 - A job renamed or added later has to be changed in the ruleset by hand: a required name that no
   longer runs blocks every PR.
+
+## 2026-11-23: #18 deployed and tested
+
+- Smoke test before the deploy, in a throwaway home on the VPS (no job, no live file): the mint
+  wrote a real read token, 390 characters; GitHub answered 200 with it, the new
+  `revoke-gh-token.sh --now` exited 0 and emptied the login, and GitHub answered 401 after.
+- Deployed at 10:19 with the owner's yes; the checksum matches the repo. The new script's mtime
+  made `hermes hooks doctor` warn, so its allowlist entry was re-approved the same way as the
+  first time.
+- The owner asked for a live run: `hermes cron run` on `pr-triage-morning`. The agent woke for the
+  open PR, the triage went to Discord, and the login was emptied in the same second the turn ended
+  (10:21:05). No ping, no hook warning, nothing kept in `unrevoked-tokens`.
+- Clean-up, the owner's call: memory-diff had run 8 hours clean and the triage was clean, so the
+  `*.bak-deploy-20261123*` backups are gone (scripts, hook, `config.yaml`, allowlist, `jobs.json`),
+  and so is `unrevoked-tokens`, which held the two tokens from 08:00, both expired. The older
+  `.bak-*` files from earlier steps stay.
+- Still to see: the first scheduled triage at 08:00 tomorrow, and the first bug-loop run that
+  claims an email (it mints a write token, so its hook is the one that matters most).
