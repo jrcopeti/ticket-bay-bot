@@ -305,3 +305,17 @@
   to the tested stack. `--repo` resolves to `jrcopeti/ticket-bay` from the fork's SSH and HTTPS URLs.
 - Next: after the merge, add `plant-demo-bug` to the ruleset's required checks, plant 01 to 08 in
   order, and send the emails, one at a time, with the owner's yes for each run.
+
+## 2026-11-23: the eight bugs planted, the emails sent
+
+- With the owner's yes, `plant.sh` planted 02 to 08 in order, each merged with the ruleset bypass
+  once its checks showed only the mutation check failing (07 passed it) and its changed lines
+  matched its patch: #19 to #25 on the fork. 01 was #18. The fork's `main` carries all eight, and
+  no PR is open. #16, the bot's earlier fix for the group-of-ten bug, was closed first.
+- The first loop stopped on #20 because it read the checks before all six had reported, and the
+  restart tried 02 again; neither changed anything on the fork.
+- The owner gave the support address and said to send them all: the eight emails went out in one
+  go, 06 included, from the owner's Gmail connector. 01 and 02's fixes touch adjacent lines, so
+  the bot's PRs for those two may conflict.
+- Next: the bug loop's first run on them (09:00 tomorrow), then the owner merges three fixes
+  (04, 07, 08) and leaves the rest open. Still to see there: the new bug-loop prompt.
