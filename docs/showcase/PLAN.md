@@ -7,7 +7,7 @@ At least eight of them fix bugs planted in the fork and reported by email: three
 
 **Why:** Telma's [showcase plan](https://github.com/jrcopeti/telma/blob/main/docs/showcase/PLAN.md)
 gave this repo the bug-loop demo and the bot's before/after rows (the owner, 2026-11-19 and
-2026-11-20), but nothing here tracked them. This repo has no README, threat model or ADRs, and the
+2026-11-20), but nothing here tracked them. This repo had no README, threat model or ADRs, and the
 fork's README doesn't say the bot works there.
 
 **Done when:** the steps below are done, the fork holds at least eight bot PRs that fix planted bugs (three merged, five open),

@@ -10,6 +10,7 @@
 | `ci/private-values-followup` | 1 | PR #12 merged |
 | `docs/before-after` | 3 | PR #13 merged |
 | `docs/adr` | 4 | PR #15 merged |
+| `docs/stale-lines` | 4 | PR open |
 
 ## 2026-11-21: plan
 
