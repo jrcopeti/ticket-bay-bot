@@ -131,3 +131,19 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   triage's token first, so triage fails and never holds the write token. Its hook then fires and
   revokes the bug loop's new token too, so that run fails as well: both fail closed, and the email
   stays claimed (the `bug-loop-pre.sh` gap in the showcase devlog).
+
+## 2026-11-23: #14 and #16 deployed
+
+- The owner's yes, after both merged. Copied by hand at 01:30 Berlin, before any job was due:
+  `pull-repos.sh`, `memory-diff.sh`, `mint-gh-token.sh`, `bug-loop-pre.sh` and `pr-triage-pre.sh` to
+  `~/.hermes/scripts/`, `revoke-gh-token.sh` to `~/.hermes/agent-hooks/`. Each deployed copy was
+  diffed against the repo first: the differences were the PRs' changes and nothing else. The
+  checksums now match the repo. The old copies are kept as `*.bak-deploy-20261123`, with
+  `config.yaml`, the hook allowlist and `jobs.json`.
+- New no-agent job `memory-diff`, every 60 m, delivered to Discord. Nothing was run by hand.
+- `on_session_end` entry added under `hooks:` in `config.yaml`. A cron run skips a hook that isn't
+  in `~/.hermes/shell-hooks-allowlist.json`, and `hermes hooks` can only approve every hook at once
+  (`--accept-hooks`), so the one entry was written by hand in Hermes's own format, under its lock.
+  `hermes hooks doctor` passes it; the gateway registered it at 01:32.
+- Still open from before: `guard-network.sh` and `verify-tests.sh` changed after their approval on
+  2026-11-17, so `hermes hooks doctor` warns about both. They still fire.
