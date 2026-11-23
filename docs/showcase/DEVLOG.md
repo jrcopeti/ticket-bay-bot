@@ -7,7 +7,8 @@
 | `docs/showcase-plan` | plan | PR #9 merged |
 | `ci/personal-data-net` | 1 | PR #10 merged |
 | `docs/threat-model` | 2 | PR #11 merged |
-| `ci/private-values-followup` | 1 | PR open |
+| `ci/private-values-followup` | 1 | PR #12 merged |
+| `docs/before-after` | 3 | PR open |
 
 ## 2026-11-21: plan
 
@@ -143,3 +144,32 @@
 - Left as they are: two code lines that name the skills checkout, its path in `skills-update.sh`
   and the guard's source label in `scan-diff.py`. Changing them means renaming the folder on the VPS
   and redeploying, the owner's call. The values also stay in this repo's public history.
+
+## 2026-11-23: step 3, before/after table
+
+- `docs/before-after.md`, same shape as Telma's page, from the bot's side: legs per session, private
+  data, untrusted input, ways out, persistence, detection, what is still open. Rows from the brain's
+  parked bot rows, checked against Telma's audit-before, audit-after and injection suite at
+  `pre-split`.
+- Overlaps with Telma's page are written here too, from the bot's side (the owner's rule, 2026-11-20):
+  the split, the rotated GitHub token and mailbox password, keys host only, Discord the owner only,
+  no root cron, the kill switch.
+- Left out: the test gate (it ran before the split as well, so it has no before/after) and the chats
+  with the owner (the bot didn't exist before).
+- The mailbox row says only that the password was mounted in the sandbox before: the audit doesn't
+  say the sandbox read the inbox itself.
+- The skills repo is "the upstream skills repo", since its name is on the private-values list.
+- `/code-review` (default effort, all findings) found 6, all fixed: the legs cells now name each
+  leg (untrusted input was missing from both columns), and the "after" count of 2 points to the
+  threat model, which counts it that way only if the 1-hour token doesn't count; "refused most" is
+  now "refused every case", as the threat model says; the test-gate risk joins What is still open;
+  a sentence re-wrapped; the skills pull is still a system cron job, now as `skills-sync`, not root.
+- The owner, in the PR: "nothing worth stealing but its own token" plays down an hour of write
+  access, harmless only because the fork is a demo. Reworded; the owner's fix is to revoke the token
+  when each run ends (hardening plan).
+- Audit after #14, #16, #18 and #19 landed on `main`: merged `main` in (no conflict). The page
+  still said "1-hour token" and a daily memory diff. Now: the token is revoked when the run ends
+  (a hook since #16, fixed for GitHub's longer tokens in #18, deployed), so the legs, GitHub, PR
+  body and What is still open rows say that, and the open risk names the ping and the full hour
+  if the revoke fails; the memory diff is hourly and silent when nothing changed (#14). The owner's
+  fix above is done. The kill-switch row still matches the runbook.
