@@ -7,7 +7,8 @@
 | `docs/showcase-plan` | plan | PR #9 merged |
 | `ci/personal-data-net` | 1 | PR #10 merged |
 | `docs/threat-model` | 2 | PR #11 merged |
-| `ci/private-values-followup` | 1 | PR open |
+| `ci/private-values-followup` | 1 | PR #12 merged |
+| `docs/adr` | 4 | PR #15 open |
 
 ## 2026-11-21: plan
 
