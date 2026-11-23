@@ -34,9 +34,10 @@ The deployed `skills-update.sh` and `skills-pull.cron` differ in comments only.
 `memory-diff.sh` runs as its own hourly no-agent job, and `pull-repos.sh` no longer calls it. Deploy
 the two together with that job: the new `pull-repos.sh` alone would stop memory-diff, silently.
 
-Not deployed yet: `revoke-gh-token.sh` and the scripts that call it, `mint-gh-token.sh`,
-`bug-loop-pre.sh` and `pr-triage-pre.sh` (2026-11-23). Copy all four, then add the hook to `~/.hermes/config.yaml` under `hooks:`, as
+`revoke-gh-token.sh` is wired in `~/.hermes/config.yaml` under `hooks:`, as
 `on_session_end: [{command: /home/ticket-bay-bot/.hermes/agent-hooks/revoke-gh-token.sh, timeout: 15}]`.
+`mint-gh-token.sh`, `bug-loop-pre.sh` and `pr-triage-pre.sh` call it too, so deploy all four with
+the hook entry.
 
 ## Rules for the whole host
 
