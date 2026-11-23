@@ -37,7 +37,8 @@ the two together with that job: the new `pull-repos.sh` alone would stop memory-
 `revoke-gh-token.sh` is wired in `~/.hermes/config.yaml` under `hooks:`, as
 `on_session_end: [{command: /home/ticket-bay-bot/.hermes/agent-hooks/revoke-gh-token.sh, timeout: 15}]`.
 `mint-gh-token.sh`, `bug-loop-pre.sh` and `pr-triage-pre.sh` call it too, so deploy all four with
-the hook entry.
+the hook entry. A cron run skips a hook missing from `~/.hermes/shell-hooks-allowlist.json`, silently,
+so the entry needs its approval there too; `hermes hooks doctor` shows whether it has one.
 
 ## Rules for the whole host
 
