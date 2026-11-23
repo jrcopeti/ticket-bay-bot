@@ -1,25 +1,33 @@
 #!/usr/bin/env bash
 # Publish the morning review pages after the pr-triage render step: the queue, one PR tour
 # page per open PR (rendered with the pr-tour skill's render.mjs), and an index of both.
-# Runs inside the sandbox; OUT and RENDER are same-path mounts (config-pack/config.excerpt.yaml).
+# Runs inside the sandbox; OUT and RENDER are same-path mounts (docker_volumes in ~/.hermes/config.yaml).
 # Usage: publish-pr-review <worktree> <name> <date>    e.g. publish-pr-review /home/ticket-bay-bot/dev/wt/triage-x ticket-bay 2026-10-05
 set -euo pipefail
-OUT=/home/ticket-bay-bot/pr-review
-RENDER=/opt/dmoka-skills/skills/pr-tour/scripts/render.mjs
+OUT=${PR_REVIEW_OUT:-/home/ticket-bay-bot/pr-review}
+RENDER=${PR_TOUR_RENDER:-/opt/dmoka-skills/skills/pr-tour/scripts/render.mjs}
 WT=$1 NAME=$2 D=$3
 R="$WT/.pr-review"
 [ -f "$R/review.html" ] || { echo "publish-pr-review: $R/review.html missing (run the pr-triage render step first)"; exit 1; }
+
+# Tours render into a staging folder first: if one fails, yesterday's pages and index stay up.
+NEW=$(mktemp -d "$OUT/.new-XXXXXX")
+trap 'rm -rf "$NEW"' EXIT
+shopt -s nullglob
+for t in "$R"/tour-*.json; do
+  case "$t" in *.notes.json) continue ;; esac   # the judge's notes, already merged into tour-<n>.json
+  n=$(jq -r '.pr.number // empty' "$t")
+  [[ $n =~ ^[0-9]+$ ]] || { echo "publish-pr-review: $t has no PR number"; exit 1; }
+  [ ! -e "$NEW/$NAME-pr-$n.html" ] || { echo "publish-pr-review: two tours for PR $n"; exit 1; }
+  node "$RENDER" "$t" --out "$NEW/$NAME-pr-$n.html" >/dev/null
+done
 
 cp "$R/review.html" "$OUT/$NAME-$D.html"
 cp "$R/review.html" "$OUT/$NAME-latest.html"
 # One tour page per OPEN PR: drop yesterday's, so a closed PR's tour disappears.
 rm -f "$OUT/$NAME"-pr-*.html
-shopt -s nullglob
-for t in "$R"/tour-*.json; do
-  case "$t" in *.notes.json) continue ;; esac   # the judge's notes, already merged into tour-<n>.json
-  n=$(jq -r '.pr.number' "$t")
-  node "$RENDER" "$t" --out "$OUT/$NAME-pr-$n.html" >/dev/null
-done
+new=("$NEW"/*.html)
+[ ${#new[@]} -eq 0 ] || mv "${new[@]}" "$OUT/"
 chmod 644 "$OUT"/*.html
 # Lists, not `ls` on a glob: with nullglob and no match, `ls` would list the current folder.
 tours=("$OUT"/*-pr-*.html) mine=("$OUT/$NAME"-pr-*.html)
