@@ -9,7 +9,17 @@ Entries before 2026-11-19 are in jrcopeti/telma at tag `pre-split`
 |---|---|---|
 | `main` | import | first commit |
 | `docs/unversioned-scripts` | after import | merged (#1) |
-| `chore/own-host-scripts` | after import | PR to open |
+| `chore/own-host-scripts` | after import | merged (#2) |
+| `chore/add-vps-only-scripts` | after import | merged (#5) |
+| `chore/sandbox-dockerfile` | after import | merged (#6) |
+| `chore/rename-telma` | after import | merged (#7) |
+| `docs/lessons-8-5-8-6-open` | after import | merged (#8) |
+| `chore/memory-diff-hourly` | memory-diff | merged (#14) |
+| `hardening/revoke-token-after-run` | revoke token | merged (#16) |
+| `docs/deploy-14-16` | deploy | merged (#17) |
+| `fix/revoke-long-tokens` | revoke token | merged (#18) |
+| `docs/required-checks` | ruleset | merged (#19) |
+| `docs/deploy-18` | deploy | merged (#20) |
 
 ## 2026-11-19: imported from jrcopeti/telma
 

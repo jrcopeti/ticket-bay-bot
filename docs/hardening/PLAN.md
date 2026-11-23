@@ -51,9 +51,6 @@ This repo was split from Telma's on 2026-11-19.
 
 ## Open
 
-- The revoke hook is live but refuses GitHub's newer 390-character tokens, so until the fixed
-  `revoke-gh-token.sh` is deployed each token still lives its hour and each run pings twice
-  (DEVLOG, 2026-11-23).
 - The test gate: Hermes stopped waiting for a hook after 30 s, so a red verdict came too late.
   Timeout raised to 300 s on 2026-11-18; check on the next bug-loop run that edits code.
 - `zod` (< 4.6.6) and `source-map-js` Dependabot alerts on the fork stay open.
