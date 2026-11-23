@@ -27,7 +27,7 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-bot/tools/publish-pr-review`, `bug-loop-prompt.txt`, `pr-triage-prompt.txt` | `~/tools/`, which the sandbox mounts read-only at `/opt/tools` |
 | `ticket-bay-bot/egress/compose.yaml`, `squid.conf` | `~/egress/` |
 | `ticket-bay-bot/sandbox/Dockerfile` | `~/sandbox/` |
-| `ticket-bay-bot/systemd/` (two files) | `~/.config/systemd/user/`, each unit enabled |
+| `ticket-bay-bot/systemd/pr-review-http.service`, `hermes-gateway.service.d/rootless-docker.conf` | `~/.config/systemd/user/`, the same paths; enable the unit, the drop-in needs only `daemon-reload` (the gateway unit itself comes from Hermes's installer) |
 | `skills-sync/skills-update.sh`, `scan-diff.py` | `/usr/local/lib/skills-sync/` |
 | `skills-sync/skills-pull.cron` | `/etc/cron.d/skills-pull` |
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
@@ -39,9 +39,10 @@ The deployed `skills-update.sh` and `skills-pull.cron` differ in comments only.
 Most of `~/.hermes/config.yaml` is Hermes's own defaults, written by its installer.
 [`config.overrides.yaml`](ticket-bay-bot/hermes/config.overrides.yaml) holds only the settings
 chosen for the bot: the model and its free fallbacks, the Docker sandbox with its mounts, network and
-proxy, the disabled toolsets, the user profile off, the external skills folder, approvals, the three
-hooks under `hooks:`, and the TicketBay MCP server with its tool include-list. Every key in it must
-match the live file.
+proxy, the disabled toolsets, memory on and the user profile off, the external skills folder,
+approvals, the three hooks under `hooks:`, and the TicketBay MCP server with its tool include-list.
+Three of them equal Hermes's defaults and are pinned on purpose. Every key in it must match the live
+file.
 
 ## The skills
 

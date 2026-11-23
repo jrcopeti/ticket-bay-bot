@@ -255,9 +255,10 @@
     moves the checkout forward), and incomplete (`publish-pr-review` renders with `pr-tour`, never
     copied). `host.md` now pins the commit and lists which skill each job uses.
   - `config.yaml`: 2,539 lines, about 2,100 of them Hermes's comments. Replaced by
-    `config.overrides.yaml`, the 30 keys that differ from Hermes's `cli-config.yaml.example`, each
-    checked equal to the live file. The `gateway:` block Hermes's installer wrote is defaults and
-    stays out, except `allow_all_users: false`.
+    `config.overrides.yaml`: the settings that differ from Hermes's `cli-config.yaml.example`, plus
+    three defaults pinned on purpose (memory on, per ADR 5; the launch folder kept out of the
+    sandbox; `allow_all_users: false`). Every key checked equal to the live file. The rest of the
+    `gateway:` block Hermes's installer wrote is defaults and stays out.
   - `shell-hooks-allowlist.json`: Hermes writes it with approval timestamps and script mtimes, so it
     changes on every redeploy. `host.md` says which hooks need an approval.
   - `docker.service` and `hermes-gateway.service`: generated and unchanged; the gateway's names the

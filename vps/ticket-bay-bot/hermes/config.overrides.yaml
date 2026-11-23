@@ -1,5 +1,6 @@
 # The bot's settings in ~/.hermes/config.yaml that differ from Hermes's defaults
-# (cli-config.yaml.example). The rest of the live file is Hermes's own, written by its installer.
+# (cli-config.yaml.example), plus three defaults pinned on purpose, marked "pinned default".
+# The rest of the live file is Hermes's own, written by its installer.
 
 model:
   default: "deepseek/deepseek-v4.1-flash"
@@ -17,6 +18,7 @@ terminal:
   cwd: "/workspace/dev"
   container_cpu: 2
   container_memory: 3072
+  docker_mount_cwd_to_workspace: false   # pinned default: the host's launch folder stays out
   docker_image: agent-sandbox:3
   docker_run_as_host_user: false
   docker_volumes:
@@ -53,6 +55,7 @@ agent:
     - kanban
 
 memory:
+  memory_enabled: true   # pinned default: ADR 0005
   user_profile_enabled: false
 
 skills:
@@ -60,7 +63,7 @@ skills:
     - /opt/dmoka-skills/skills
 
 gateway:
-  allow_all_users: false
+  allow_all_users: false   # pinned default: only allowed users reach the bot
 
 updates:
   check: false
