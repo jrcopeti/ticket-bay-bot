@@ -140,11 +140,18 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   long with `.` and `-`, and the check allowed only `[A-Za-z0-9_]`. The hook failed closed as built:
   login emptied, token kept host-side, owner pinged. Neither was revoked, so each lived its hour; at
   09:47 both answered 401. The bug loop at 09:00 claimed no email, so it minted nothing.
-- Fix: the check takes `ghs_` and any visible characters after it, so the next format change
-  doesn't leave tokens unrevoked again. Test with a token of the shape seen, matched exactly.
+- Fix: the check takes `ghs_` plus letters, digits, `_`, `.` and `-`, in the C locale. Test with a
+  token of the shape seen, matched exactly. A comment after a tab is stripped now too.
 - `/code-review` found the secret scan had the same blind spot: gitleaks' default App-token rule
   wants exactly 36 alphanumerics after the prefix, so a new-format token with an early `_`, `.` or
   `-` went through. `.gitleaks.toml` has a rule for the long format now, with a hook test, and the
   full history scans clean with it.
+- Second `/code-review` (the owner asked) found 9. Fixed, with tests: the first review's
+  `[[:graph:]]` was too wide. A `ghs_` value with junk glued on (a tab-separated comment, a `,`,
+  a non-ASCII letter) got a 401 and passed for revoked, with no ping; it's kept and reported again.
+  The gitleaks rule has keywords, no leading `\b` (a token glued to a word is caught), and a test
+  that names the rule. `PLAN.md`'s Open says the hook doesn't revoke yet.
+- Not fixed: a review proposed the mint record that it wrote an App token, so the revoke wouldn't
+  guess from the shape. A format change now fails closed with a ping, which is enough for now.
 - Not deployed yet: the new `revoke-gh-token.sh` waits for the owner's yes. Until then, each run's
   token lives its hour and each run pings twice.
