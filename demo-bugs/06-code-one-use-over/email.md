@@ -9,4 +9,4 @@ order with the discount.
 Can you check why it still worked after the 40th use? We'll give out more limited codes next year.
 
 Best regards,
-Eszter
+Jonas

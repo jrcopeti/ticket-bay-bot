@@ -10,4 +10,4 @@ before that deadline, and paid full price: no early-bird line on the invoice. 10
 The event starts on 20 March 2027 at 19:30.
 
 Regards,
-Dóra
+Dora

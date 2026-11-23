@@ -8,4 +8,4 @@ tickets get 5% off, which would be €11.25, but my invoice shows no group disco
 A friend booked 6 tickets for the same show yesterday and got the 5%. Why not me?
 
 Best,
-Péter
+Peter

@@ -6,4 +6,4 @@ The price table on the Budapest Jazz Evening page has three rows: 1–4 tickets,
 tickets. There's no row for 9. We're a group of 9: which price do we get?
 
 Thanks,
-Bence
+Gina

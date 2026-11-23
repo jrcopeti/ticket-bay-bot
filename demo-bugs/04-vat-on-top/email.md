@@ -10,4 +10,4 @@ says VAT €97.06. That's 27% of the total, as if the VAT came on top. Our accou
 this. Can you send a corrected invoice?
 
 Kind regards,
-Zsófia
+Chania

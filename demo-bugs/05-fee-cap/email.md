@@ -12,4 +12,4 @@ Your booking and fees page says the fee is 3% "at least €1.00 and at most €2
 Please refund the €5.48 I was overcharged.
 
 Thanks,
-Gábor
+Gabor
