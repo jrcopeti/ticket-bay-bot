@@ -56,8 +56,17 @@ check "a tour with no PR number keeps yesterday's tours and index" yesterday_kep
 setup; tour x '"pr":"5"'; run
 check "a tour whose pr isn't an object fails with the same message" eval '[ $code != 0 ] && says "no PR number"'
 
-setup; mkdir "$W/out/.new-old" && touch -t 202611220000 "$W/out/.new-old"; tour 8 '"pr":{"number":8}'; run
-check "a staging folder left by a killed run is dropped after an hour" eval '[ ! -e "$W/out/.new-old" ]'
+setup; tour x '"pr":{"number":"007"}'; run
+check "a PR number written as a string is refused" eval '[ $code != 0 ] && says "no PR number"'
+
+setup; mkdir "$W/out/.new-killed"; tour 8 '"pr":{"number":8}'; run
+check "a staging folder left by a killed run is dropped" eval '[ $code = 0 ] && no_staging'
+
+setup; tour 8 '"pr":{"number":8}'
+exec 8>"$W/out/.lock" && flock -n 8
+run
+check "a second run while one holds the lock stops and changes nothing" eval '[ $code != 0 ] && says "another run" && yesterday_kept'
+exec 8>&-
 
 setup; tour a '"pr":{"number":8}'; tour b '"pr":{"number":8}'; run
 check "two tours for one PR fail instead of overwriting" eval '[ $code != 0 ] && says "two tours for PR 8"'
