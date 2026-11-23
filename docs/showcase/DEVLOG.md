@@ -281,8 +281,8 @@
 - Dropped after a probe: the last seat refused (`n >= seatsAvailable`) broke 15 integration tests,
   and a 2% refund fee typed as 20% broke 20 unit tests. Loosening that much would make the plant
   PR the story.
-- The rule the plants follow: loosen by dropping an assertion or narrowing a generator, never by
-  rewriting a test to expect the bug. Checked: the original `src/domain/` with every loosened test
+- The rule the plants follow: drop a test or an assertion, compare fewer fields, filter the bug's
+  case out of a generator, or move an input off the boundary; never expect the buggy value. Checked: the original `src/domain/` with every loosened test
   is green (unit 358, integration and HTTP 274), so the bot's fix needs no test edits.
 - With all eight planted, CI passes apart from the mutation check: unit and property tests,
   typecheck, integration, HTTP and Playwright (6/6). The mutation check fails on every plant PR by
@@ -290,5 +290,12 @@
 - The pack lives here, not on the fork as the plan said: on the fork's `main` the bot's grep would
   find each patch next to its email. `plant.sh` opens the plant PR on the fork from a temporary
   worktree; `test-plant.sh` runs in CI (`plant-demo-bug`).
+- `/code-review` (default effort, all findings) found 10, all fixed: `plant.sh` now cleans up
+  after any failure, refuses a re-run once its branch is pushed, pins `--repo` to origin (the
+  fork's clone also has an `upstream` remote), applies with `--3way` and takes a trailing slash.
+  The HTTP generators filter out only the bug's case instead of capping tickets at 9 and prices at
+  €70. The README describes how the plants actually loosen tests. Email 05 quotes invoice lines, so
+  the seed's early-bird dates don't change its numbers. 06 is no longer suggested for merge: its
+  plant deletes the race test on a code's last use, which the fix won't restore. Merge 04, 07, 08.
 - Next: after the merge, add `plant-demo-bug` to the ruleset's required checks, plant 01 to 08 in
   order, and send the emails, one at a time, with the owner's yes for each run.

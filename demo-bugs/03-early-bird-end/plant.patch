@@ -31,7 +31,7 @@ index b8cf2b4..9003076 100644
    });
  });
 diff --git a/tests/http/api-v1.property.test.ts b/tests/http/api-v1.property.test.ts
-index 44fb0c0..601ce07 100644
+index 84e0830..0851fec 100644
 --- a/tests/http/api-v1.property.test.ts
 +++ b/tests/http/api-v1.property.test.ts
 @@ -419,10 +419,7 @@ describe("2. valid input → success", () => {

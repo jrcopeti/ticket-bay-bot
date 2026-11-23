@@ -58,7 +58,7 @@ index 6725594..f5e3b5a 100644
  });
  
 diff --git a/tests/http/api-v1.property.test.ts b/tests/http/api-v1.property.test.ts
-index 601ce07..6360475 100644
+index 0851fec..ead232e 100644
 --- a/tests/http/api-v1.property.test.ts
 +++ b/tests/http/api-v1.property.test.ts
 @@ -135,7 +135,6 @@ function modelPrice(p: { priceCents: number; tickets: number; earlyBird: boolean

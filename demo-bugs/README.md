@@ -39,8 +39,9 @@ demo-bugs/plant.sh ~/code/ticket-bay 01-group-of-ten
 
 `plant.sh` opens a PR on the fork from a temporary worktree off `origin/main`, so the local
 checkout is left alone. The patches stack: plant them in order, each after the one before it is
-merged. The plants loosen tests by dropping an assertion or narrowing a generator, never by
-rewriting a test to expect the bug, so the bot's fix needs no test edits to go green.
+merged. The plants loosen tests by dropping a test or an assertion, comparing fewer fields, filtering
+the bug's case out of a generator, or moving an input off the boundary (6 tickets instead of 5).
+None of them expects the buggy value, so the bot's fix needs no test edits to go green.
 
 Every plant PR fails the fork's required `mutation (changed domain lines)` check, by design: the
 mutant that survives is the fix. The owner merges with the ruleset bypass. The rest of CI passes
@@ -51,7 +52,9 @@ with all eight planted: unit and property tests, typecheck, integration, the HTT
 The owner sends each `email.md` to the support inbox, one at a time. Each one starts a bug-loop
 run, so an agent asks before sending.
 
-Don't merge both 01 and 02. Their fixes touch adjacent lines, so the second PR would conflict. 04,
-06 and 08 fix lines far apart from each other and from the rest.
+Merge 04, 07 and 08: their fixes touch lines far apart from each other and from the rest. Don't
+merge both 01 and 02, whose fixes touch adjacent lines. Leave 06 open: its plant deletes the
+integration test for two checkouts racing for a code's last use, which a fix to `codeStatus`
+won't bring back.
 
 `test-plant.sh` tests `plant.sh` against a throwaway fork.
