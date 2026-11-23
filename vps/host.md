@@ -22,12 +22,12 @@ Copied by hand; `~` is the bot's home, `/home/ticket-bay-bot`.
 | `ticket-bay-bot/pull-repos.sh`, `squid-denials.sh`, `memory-diff.sh`, `mint-gh-token.sh`, `bug-loop-pre.sh`, `pr-triage-pre.sh` | `~/.hermes/scripts/` |
 | `ticket-bay-bot/set-secret`, `support-inbox` | `~/host-tools/` |
 | `ticket-bay-bot/guard-network.sh`, `verify-tests.sh`, `revoke-gh-token.sh` | `~/.hermes/agent-hooks/` |
-| `ticket-bay-bot/hermes/SOUL.md`, `config.yaml`, `shell-hooks-allowlist.json` | `~/.hermes/` |
+| `ticket-bay-bot/hermes/SOUL.md` | `~/.hermes/` |
+| `ticket-bay-bot/hermes/config.overrides.yaml` | merged by hand into `~/.hermes/config.yaml` (below) |
 | `ticket-bay-bot/tools/publish-pr-review`, `bug-loop-prompt.txt`, `pr-triage-prompt.txt` | `~/tools/`, which the sandbox mounts read-only at `/opt/tools` |
-| `skills/bug-triage/`, `skills/pr-triage/` | `/opt/dmoka-skills/skills/`, which the sandbox mounts read-only at the same path |
 | `ticket-bay-bot/egress/compose.yaml`, `squid.conf` | `~/egress/` |
 | `ticket-bay-bot/sandbox/Dockerfile` | `~/sandbox/` |
-| `ticket-bay-bot/systemd/` (four files) | `~/.config/systemd/user/`, each unit enabled |
+| `ticket-bay-bot/systemd/pr-review-http.service`, `hermes-gateway.service.d/rootless-docker.conf` | `~/.config/systemd/user/`, the same paths; enable the unit, the drop-in needs only `daemon-reload` (the gateway unit itself comes from Hermes's installer) |
 | `skills-sync/skills-update.sh`, `scan-diff.py` | `/usr/local/lib/skills-sync/` |
 | `skills-sync/skills-pull.cron` | `/etc/cron.d/skills-pull` |
 | `ticket-bay-app/Dockerfile`, `Dockerfile.dockerignore`, `compose.yaml` | `/opt/ticket-bay-app/` |
@@ -36,14 +36,34 @@ The deployed `support-inbox` differs from this copy in one line: it holds the bu
 The deployed `pr-triage-prompt.txt` has the tailnet host name where this copy says `<tailnet-host>`.
 The deployed `skills-update.sh` and `skills-pull.cron` differ in comments only.
 
-Most of `config.yaml` is Hermes's own defaults. The settings chosen for the bot: the model and its
-free fallbacks, the Docker sandbox with its mounts, network and proxy, the disabled toolsets, memory
-on and the user profile off, the external skills folder, the TicketBay MCP server with its tool
-include-list, and the three hooks under `hooks:`.
+Most of `~/.hermes/config.yaml` is Hermes's own defaults, written by its installer.
+[`config.overrides.yaml`](ticket-bay-bot/hermes/config.overrides.yaml) holds only the settings
+chosen for the bot: the model and its free fallbacks, the Docker sandbox with its mounts, network and
+proxy, the disabled toolsets, memory on and the user profile off, the external skills folder,
+approvals, the three hooks under `hooks:`, and the TicketBay MCP server with its tool include-list.
+Three of them equal Hermes's defaults and are pinned on purpose. Every key in it must match the live
+file.
 
-The skills are [dmoka/skills](https://github.com/dmoka/skills) at `1a6af1f`, MIT-licensed
-([LICENSE](skills/LICENSE)). `skills-sync` moves the deployed checkout forward, so these copies
-show the commit the bot ran when they were taken.
+## The skills
+
+The bot runs the skills of [dmoka/skills](https://github.com/dmoka/skills) (MIT), checked out in
+`/opt/dmoka-skills` and mounted read-only into the sandbox at the same path. This repo pins the
+commit and holds no copy.
+
+| Pinned commit | Checked |
+|---|---|
+| [`1a6af1f`](https://github.com/dmoka/skills/tree/1a6af1f2657fd4c9d8fe5bdb04f3e57156546c11) | 2026-11-23 |
+
+| Skill | Used by |
+|---|---|
+| `bug-triage` | the bug-loop job |
+| `pr-triage` | the morning PR triage |
+| `pr-tour` | `publish-pr-review`, which renders one tour page per open PR |
+| `adversarial-tester` | the owner only, on request (`SOUL.md`) |
+
+`skills-sync` moves the checkout forward after a 7-day wait and the skills
+guard. So the pin is the commit seen when last checked; on the host,
+`git -C /opt/dmoka-skills rev-parse HEAD` shows the one running now.
 
 ## The bot's jobs
 
@@ -65,17 +85,20 @@ the two together with that job: the new `pull-repos.sh` alone would stop memory-
 `on_session_end: [{command: /home/ticket-bay-bot/.hermes/agent-hooks/revoke-gh-token.sh, timeout: 15}]`.
 `mint-gh-token.sh`, `bug-loop-pre.sh` and `pr-triage-pre.sh` call it too, so deploy all four with
 the hook entry. A cron run skips a hook missing from `~/.hermes/shell-hooks-allowlist.json`, silently,
-so the entry needs its approval there too; `hermes hooks doctor` shows whether it has one.
+so the entry needs its approval there too; `hermes hooks doctor` shows whether it has one. Hermes
+writes that file when a hook is approved, with timestamps, so this repo holds no copy: all three
+hooks (`guard-network.sh`, `verify-tests.sh`, `revoke-gh-token.sh`) need an approval.
 
 ## The bot's services
 
-All are user units of `ticket-bay-bot` in [systemd/](ticket-bay-bot/systemd/), enabled, and start
-at boot because linger is on.
+All are user units of `ticket-bay-bot`, enabled, and start at boot because linger is on. The two
+the owner wrote are in [systemd/](ticket-bay-bot/systemd/); the other two are generated and kept
+as their tools wrote them, so this repo holds no copy.
 
 | Unit | What it runs | Written by |
 |---|---|---|
-| `docker.service` | The bot's rootless Docker: the sandbox and the egress proxy run on it. | `dockerd-rootless-setuptool.sh`, unchanged |
-| `hermes-gateway.service` | The bot: Discord, the cron jobs and the hooks. The kill switch disables it. | Hermes's installer, unchanged |
+| `docker.service` | The bot's rootless Docker: the sandbox and the egress proxy run on it. | `dockerd-rootless-setuptool.sh install`, unchanged |
+| `hermes-gateway.service` | The bot: Discord, the cron jobs and the hooks. The kill switch disables it. | Hermes's installer, unchanged; it names the Node and npm versions in `PATH`, so it changes with each Hermes bump |
 | `hermes-gateway.service.d/rootless-docker.conf` | Starts the gateway after `docker.service` and sets `DOCKER_HOST` to the bot's own socket, so each sandbox runs in the bot's Docker, never in root's. | the owner |
 | `pr-review-http.service` | Serves the review pages (below). | the owner |
 
