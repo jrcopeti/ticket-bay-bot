@@ -22,7 +22,9 @@ Entries before 2026-11-19 are in jrcopeti/telma at tag `pre-split`
 | `docs/deploy-18` | deploy | merged (#20) |
 | `fix/publish-pr-review` | PR triage | merged into `docs/live-files` (#23), landed by #24 |
 | `fix/land-22-23` | PR triage | merged (#24) |
-| `docs/deploy-23` | deploy | PR open |
+| `docs/deploy-23` | deploy | merged (#25) |
+| `chore/pr-review-serving` | review pages | merged (#26) |
+| `docs/stale-lines-audit` | audit | PR open |
 
 ## 2026-11-19: imported from jrcopeti/telma
 
@@ -75,7 +77,7 @@ jrcopeti/telma's [repo-split devlog](https://github.com/jrcopeti/telma/blob/main
   repo is renamed (its step 4).
 - `guard-network.sh` and `verify-tests.sh` changed in comments only. Until step 5 redeploys them,
   their VPS copies differ from these in those comment lines. `guard-network.sh` is still byte for byte
-  the same as Telma's.
+  the same as Telma's. (Both were redeployed at 21:53 that day; see 2026-11-23, #14 and #16 deployed.)
 
 ## 2026-11-19: lessons 8.5 and 8.6 moved here
 
@@ -274,7 +276,8 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
   the repo. In `jobs.json` only `bug-loop`'s prompt changed, beside the scheduler's own fields for
   a job that ran meanwhile. No job was run. The old copies are kept as
   `*.bak-deploy-20261123-pub` (both files and `jobs.json`).
-- The ruleset on `main` now requires `publish-pr-review` too: nine checks.
+- The ruleset on `main` now requires `publish-pr-review` too: nine checks. (Ten since
+  `plant-demo-bug`; see 2026-11-24.)
 - The owner asked for a live run: `hermes cron run` on `pr-triage-morning`, 12:36 to 12:38, `ok`.
   The agent ran `publish-pr-review` in the sandbox, which printed `published:
   ticket-bay-2026-11-23.html, ticket-bay-latest.html, 1 tour page(s), index.html` and exited 0.
@@ -289,3 +292,15 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
 - Still to see: the first scheduled triage with the new script (08:00 tomorrow) and the first
   bug-loop run with the new prompt (09:00 tomorrow). The backups go once both are clean.
 
+
+## 2026-11-24: the first scheduled triage, and the bug loop on the demo emails
+
+- The bug loop, run by hand by the owner on 2026-11-23 at 22:37, claimed demo email 01 and opened
+  fork PR #26, the bot's fix for the group of ten, with the new prompt. The test gate's verdict was
+  green and in time, so the 300 s hook timeout holds (Open since 2026-11-18). Not checked yet:
+  that the run's write token was revoked, with no ping and nothing in `unrevoked-tokens`.
+- PR triage at 08:00, the first scheduled run with the new `publish-pr-review`: the Discord post
+  listed #26 (high) and #27 (low), each with its tour page, and linked the day's review page.
+- The bug loop at 09:00 claimed nothing: the owner had deleted the other demo emails from the
+  inbox. Showcase step 6 sends 02 to 08 again.
+- The ruleset on `main` requires `plant-demo-bug` too: ten checks.

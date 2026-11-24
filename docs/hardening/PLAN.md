@@ -51,8 +51,16 @@ This repo was split from Telma's on 2026-11-19.
 
 ## Open
 
-- The test gate: Hermes stopped waiting for a hook after 30 s, so a red verdict came too late.
-  Timeout raised to 300 s on 2026-11-18; check on the next bug-loop run that edits code.
+- The 2026-11-23 deploy (#24): the first scheduled triage ran clean on 2026-11-24. Still to see:
+  the first bug-loop run's write token revoked when it ends (fork PR #26's run, 2026-11-23 22:37,
+  not checked). Then the `*.bak-deploy-20261123-pub` backups go.
+- `bug-loop-pre.sh` claims the email and posts the ping before it mints the token, so a failed mint
+  leaves an email claimed with no run.
+- Both jobs share one `hosts.yml`: a run that ends while the other runs revokes its token. Triage
+  running past 09:00, or a run started by hand at the same time, makes both fail closed, and the
+  bug loop's email stays claimed.
+- A manifest of what's deployed and a drift check of the VPS against this repo, run from the local
+  machine. Needs its own plan.
 - `zod` (< 4.6.6) and `source-map-js` Dependabot alerts on the fork stay open.
 - Step 4 proof still to see: the first real skills update or block.
 - Lesson 8.5 (email 2, steps 14 and 15) and 8.6: run them on the bot. Moved here from Telma's frozen
