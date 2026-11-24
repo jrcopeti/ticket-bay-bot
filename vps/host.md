@@ -138,7 +138,7 @@ These rules are the same, word for word, in both repos.
 - **A compromised host means both kill switches, then a rebuild.** Signs: a root login you don't know,
   a changed `/etc`, an unknown process. Run the
   [bot's](ticket-bay-bot/kill-switch.md) and
-  [Telma's](https://github.com/jrcopeti/telma/blob/main/vps/telma/kill-switch.md) kill switches, then
+  [Telma's](https://github.com/jrcopeti/telma/blob/main/vps/kill-switch.md) kill switches, then
   rebuild the VPS.
 - **Scripts are deployed by hand.** Nothing on the host clones either repo. A change here reaches the
   VPS only when the owner says yes and copies it.
