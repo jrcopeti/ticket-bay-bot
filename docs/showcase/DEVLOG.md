@@ -319,3 +319,18 @@
   the bot's PRs for those two may conflict.
 - Next: the bug loop's first run on them (09:00 tomorrow), then the owner merges three fixes
   (04, 07, 08) and leaves the rest open. Still to see there: the new bug-loop prompt.
+
+## 2026-11-24: the fork's README section and this repo's README (steps 7 and 8)
+
+- Step 7 is [fork PR #27](https://github.com/jrcopeti/ticket-bay/pull/27): a section at the top of
+  the fork's README, with the eight bugs and the ruleset. Its links to the bot's fix PRs are
+  `pull/TBD`.
+- Step 8 is `README.md` here. It holds placeholders for the five screenshots and the GIF from the
+  shot list, the numbers table, the eight fix-PR links and the licence: the repo has no `LICENSE`
+  yet. The "proof" section reads as if all eight fixes exist; fill the links before it goes out.
+- Before the README goes out: the bug loop opens its PRs, the owner merges three (04, 07, 08), and
+  the numbers and screenshots replace the placeholders. The fork's README section has the same
+  eight links.
+- The fork's ruleset requires no approving review (`required_approving_review_count` is 0), but the
+  threat model's row 3 says "a PR with one approval". Not changed here; the owner decides which is
+  right.
