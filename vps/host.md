@@ -89,6 +89,12 @@ so the entry needs its approval there too; `hermes hooks doctor` shows whether i
 writes that file when a hook is approved, with timestamps, so this repo holds no copy: all three
 hooks (`guard-network.sh`, `verify-tests.sh`, `revoke-gh-token.sh`) need an approval.
 
+`terminal.cwd` in `config.yaml` is `/workspace/dev`, the sandbox's path, but Hermes also looks it up
+on the host. So the host has an empty `/workspace/dev`, owned by root, mode 755, that the bot can't
+write to. Without it, Hermes logs a warning every two seconds and falls back to `~/.hermes`. Don't
+point `terminal.cwd` at `~/dev` instead: Hermes loads an `AGENTS.md` it finds in that folder into
+every run, and the sandbox can write there.
+
 ## The bot's services
 
 All are user units of `ticket-bay-bot`, enabled, and start at boot because linger is on. The two

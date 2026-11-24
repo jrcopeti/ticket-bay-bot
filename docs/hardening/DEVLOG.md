@@ -314,3 +314,13 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
 - The bug loop at 09:00 claimed nothing: the owner had deleted the other demo emails from the
   inbox. Showcase step 6 sends 02 to 08 again.
 - The ruleset on `main` requires `plant-demo-bug` too: ten checks.
+- `TERMINAL_CWD does not exist: /workspace/dev` was logged about every two seconds since
+  2026-11-20 (42,521 lines on 2026-11-23). `terminal.cwd` is the sandbox's path, and Hermes
+  (v0.23.2, `agent/runtime_cwd.py`) also looks it up on the host, warns, and falls back to the
+  gateway's launch folder, `~/.hermes`. The owner's call: an empty `/workspace/dev` on the host,
+  owned by root, mode 755. Pointing `terminal.cwd` at `~/dev` was turned down: Hermes would load
+  an `AGENTS.md` from there into every run, and the sandbox can write there.
+- Made at 13:13 (VPS time), no restart. Tested: the bot can't write the folder; a sandbox
+  container still sees `~/dev` at its own `/workspace/dev`; 30 warnings a minute before, none
+  after, and no other warning or error; the gateway stayed up and `squid-denials` ran clean at
+  13:20; `hermes hooks doctor` unchanged. Not seen yet: an agent run (triage, 08:00 tomorrow).
