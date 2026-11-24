@@ -323,4 +323,9 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
 - Made at 13:13 (VPS time), no restart. Tested: the bot can't write the folder; a sandbox
   container still sees `~/dev` at its own `/workspace/dev`; 30 warnings a minute before, none
   after, and no other warning or error; the gateway stayed up and `squid-denials` ran clean at
-  13:20; `hermes hooks doctor` unchanged. Not seen yet: an agent run (triage, 08:00 tomorrow).
+  13:20; `hermes hooks doctor` unchanged.
+- The owner asked for a triage run to test it: `hermes cron run` on `pr-triage-morning`, 13:33 to
+  13:36, `succeeded`. Same queue as at 08:00 (#26 high, #27 low), both tours and the review page
+  published, the login empty after, no `unrevoked-tokens`, and no `TERMINAL_CWD` warning. Two tool
+  errors the agent got past: Hermes blocked an `-e`/`-c` script in the sandbox (the 08:00 run had
+  the same one), and the tour annotator refused a claim that wasn't verbatim from #27, rewritten.
