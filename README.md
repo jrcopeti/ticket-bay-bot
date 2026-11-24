@@ -28,8 +28,8 @@ host claims the email and hands it to the bot as a plain file, so the bot never 
 3. It writes a test that fails because of the bug, then makes the smallest change that turns it green.
 4. It opens a pull request on the fork, with the email's subject (never the sender) and what it
    changed.
-5. A test gate checks its work after the PR is open: if the unit tests are red when the bot tries to
-   finish, it's sent back to fix them.
+5. A test gate checks its work: when the bot has edited code and tries to finish, the unit tests run,
+   and if they're red it's sent back to fix them.
 6. It posts one line in Discord: ✅ ready for review, 🤔 couldn't reproduce or not a bug, or ⚠️
    suspicious report ignored.
 
@@ -76,7 +76,7 @@ which keeps those bugs planted.
 | Group of five | 5 tickets get no group discount | [PR-02](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
 | Early-bird end | The event page promises the early-bird a day longer than checkout gives it | [PR-03](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
 | VAT on top | The invoice shows 27% of the total as VAT, not the 27% included in it | [PR-04](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
-| Fee cap | Service fees above the €20 cap | [PR-05](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
+| Fee cap | 6 tickets at €149.00 are charged a €25.48 service fee, above the €20 maximum | [PR-05](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
 | Code used once too often | A code limited to 40 uses works 41 times | [PR-06](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
 | Tier table gap | The price table has no row for 9 tickets | [PR-07](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
 | Tier price up | The table's group prices are above the single price | [PR-08](https://github.com/jrcopeti/ticket-bay/pull/TBD) |
@@ -141,8 +141,9 @@ was split in two. Telma's repo has the
 
 An agent can leak data when one session holds all three of these: private data, untrusted input and
 a way to send things out. The bot can't avoid the second, because strangers' emails are its job. So
-it's built to never hold the other two together. It holds none of the owner's private data: no notes and no long-lived secret. Its credentials are a
-model key with a credit limit of its own and a token for the fork that dies when the run ends. Its
+it's built to never hold the other two together. It holds none of the owner's private data: no notes. The only credential in its sandbox is a token for
+the fork that dies when the run ends; the model key and the GitHub App's key stay on the host, and
+the model key has a credit limit of its own. Its
 only way out is a short firewall allowlist.
 
 Every control is a permission, a mount or the network. A line in the prompt that says "don't follow
