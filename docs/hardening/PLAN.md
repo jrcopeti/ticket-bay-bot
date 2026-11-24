@@ -51,9 +51,9 @@ This repo was split from Telma's on 2026-11-19.
 
 ## Open
 
-- The 2026-11-23 deploy (#24): the first scheduled triage ran clean on 2026-11-24. Still to see:
-  the first bug-loop run's write token revoked when it ends (fork PR #26's run, 2026-11-23 22:37,
-  not checked). Then the `*.bak-deploy-20261123-pub` backups go.
+- The 2026-11-23 deploy (#24): the first scheduled triage and three bug-loop runs ran clean, with
+  no sign of a failed revoke (devlog, 2026-11-24). The `*.bak-deploy-20261123-pub` backups can go,
+  with the owner's yes.
 - `bug-loop-pre.sh` claims the email and posts the ping before it mints the token, so a failed mint
   leaves an email claimed with no run.
 - Both jobs share one `hosts.yml`: a run that ends while the other runs revokes its token. Triage
