@@ -335,3 +335,10 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
   the same one), and the tour annotator refused a claim that wasn't verbatim from #27, rewritten.
   The login was emptied at 13:36:10, as the run ended, with no mint after it: the hook fired for
   this triage run.
+
+## 2026-11-24: Telma's files moved up to `vps/`
+
+- Step 2 of jrcopeti/telma's [deploy plan](https://github.com/jrcopeti/telma/blob/main/docs/deploy/PLAN.md)
+  moves her `vps/telma/` to `vps/`. The two links here to her kill switch (`vps/host.md` and
+  `vps/ticket-bay-bot/kill-switch.md`) now point at `vps/kill-switch.md`. They work once that
+  repo's #68 merges, so this merges right after it, never before.
