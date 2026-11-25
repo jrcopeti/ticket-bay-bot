@@ -1,5 +1,9 @@
 <!-- DRAFT: fill every TBD, screenshot note and the licence before this goes out. The proof section reads as if the bot's eight fixes exist and three are merged. -->
 
+<p align="center">
+  <img src="docs/assets/bot-avatar.jpg" alt="ticket-bay-bot avatar" width="180">
+</p>
+
 # ticket-bay-bot
 
 [![tests](https://github.com/jrcopeti/ticket-bay-bot/actions/workflows/tests.yml/badge.svg)](https://github.com/jrcopeti/ticket-bay-bot/actions/workflows/tests.yml)
