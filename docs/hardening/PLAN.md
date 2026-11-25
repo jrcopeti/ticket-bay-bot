@@ -51,14 +51,16 @@ This repo was split from Telma's on 2026-11-19.
 
 ## Open
 
-- The 2026-11-23 deploy (#24): the first scheduled triage and three bug-loop runs ran clean, with
-  no sign of a failed revoke (devlog, 2026-11-24). The `*.bak-deploy-20261123-pub` backups can go,
-  with the owner's yes.
+- The 2026-11-23 deploy (#24): triage ran clean with the new script, and its revoke hook fired
+  (2026-11-24). The bug loop ran three times by hand with the new prompt, but its hook can't be
+  proved after the fact. Still to see: `hosts.yml` emptied as a bug-loop run that claimed an email
+  ends, before the next mint. Then the `*.bak-deploy-20261123-pub` backups go, with the owner's yes.
 - `bug-loop-pre.sh` claims the email and posts the ping before it mints the token, so a failed mint
   leaves an email claimed with no run.
-- Both jobs share one `hosts.yml`: a run that ends while the other runs revokes its token. Triage
-  running past 09:00, or a run started by hand at the same time, makes both fail closed, and the
-  bug loop's email stays claimed.
+- Both jobs share one `hosts.yml`: a run that starts (`mint-gh-token.sh` revokes what's in the
+  login first) or ends (the hook) while the other runs revokes its token. Triage running past
+  09:00, or a run started by hand at the same time, makes both fail closed, and the bug loop's
+  email stays claimed.
 - A manifest of what's deployed and a drift check of the VPS against this repo, run from the local
   machine. Needs its own plan.
 - `zod` (< 4.6.6) and `source-map-js` Dependabot alerts on the fork stay open.

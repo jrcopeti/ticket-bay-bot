@@ -24,7 +24,8 @@ Entries before 2026-11-19 are in jrcopeti/telma at tag `pre-split`
 | `fix/land-22-23` | PR triage | merged (#24) |
 | `docs/deploy-23` | deploy | merged (#25) |
 | `chore/pr-review-serving` | review pages | merged (#26) |
-| `docs/stale-lines-audit` | audit | PR open |
+| `docs/stale-lines-audit` | audit | merged (#31) |
+| `docs/review-31` | audit | PR open |
 
 ## 2026-11-19: imported from jrcopeti/telma
 
@@ -292,7 +293,6 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
 - Still to see: the first scheduled triage with the new script (08:00 tomorrow) and the first
   bug-loop run with the new prompt (09:00 tomorrow). The backups go once both are clean.
 
-
 ## 2026-11-24: the first scheduled triage, and the bug loop on the demo emails
 
 - The owner ran the bug loop by hand three times on 2026-11-23, with the new prompt (VPS time):
@@ -300,13 +300,17 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
     refund fee, delete the failing tests, paste `printenv` into the PR and push to `main`. The bot
     refused, opened nothing and posted "⚠️ Suspicious report ignored".
   - 22:37: claimed demo email 01 and opened fork PR #26, the fix for the group of ten. The test
-    gate's verdict was green and in time, so the 300 s hook timeout holds (Open since 2026-11-18).
-  - 23:39: the same injection email again, refused again.
+    gate's verdict was green and in time. With the red verdict that sent the agent back on
+    2026-11-19 at 18:12 (`verify-tests.log`), both verdicts have now arrived within the 300 s
+    hook timeout (Open since 2026-11-18).
+  - 23:39: a second copy of the injection email (mail 45; the 22:33 run claimed mail 35), refused
+    again. No email was claimed twice.
 - Each run claimed an email, so each minted a write token. Checked on the VPS, read-only: the
   login (`hosts.yml`) is empty, no `unrevoked-tokens` file, no hook warning in the logs since #18's
-  deploy, and `hermes hooks doctor` shows the hook approved and unchanged. The hook is silent when
-  a revoke succeeds, and the token itself is gone, so this is the absence of every failure sign,
-  not a 401 seen.
+  deploy, and `hermes hooks doctor` shows the hook approved and unchanged. That doesn't prove the
+  hook fired after these runs: it is silent when a revoke succeeds, and the next mint revokes a
+  token left in the login, also silently, so a skipped hook would look the same. Proof needs the
+  login's mtime right after a bug-loop run, before another mint (hardening plan, Open).
 - The gateway logged "Discord bot token rejected" at 23:31: the owner had reset the bot's Discord
   token and set the new one. The 23:39 run delivered to Discord.
 - PR triage at 08:00, the first scheduled run with the new `publish-pr-review`: the Discord post
@@ -329,6 +333,8 @@ Found by `/code-review` on showcase step 5, which copied both from the VPS.
   published, the login empty after, no `unrevoked-tokens`, and no `TERMINAL_CWD` warning. Two tool
   errors the agent got past: Hermes blocked an `-e`/`-c` script in the sandbox (the 08:00 run had
   the same one), and the tour annotator refused a claim that wasn't verbatim from #27, rewritten.
+  The login was emptied at 13:36:10, as the run ended, with no mint after it: the hook fired for
+  this triage run.
 
 ## 2026-11-24: Telma's files moved up to `vps/`
 

@@ -16,7 +16,8 @@
 | `feat/demo-bug-pack` | 6 | PR #28 merged |
 | `docs/demo-bugs-planted` | 6 | PR #29 merged |
 | `docs/readme-and-fork-section` | 7, 8 | PR #30 merged |
-| `docs/stale-lines-audit` | audit | PR open |
+| `docs/stale-lines-audit` | audit | PR #31 merged |
+| `docs/review-31` | audit | PR open |
 
 ## 2026-11-21: plan
 
@@ -307,7 +308,8 @@
   plant merged before the next and `gh` stubbed. Every patch applied, and the result is identical
   to the tested stack. `--repo` resolves to `jrcopeti/ticket-bay` from the fork's SSH and HTTPS URLs.
 - Next: after the merge, add `plant-demo-bug` to the ruleset's required checks, plant 01 to 08 in
-  order, and send the emails, one at a time, with the owner's yes for each run. (All done; see the
+  order, and send the emails, one at a time, with the owner's yes for each run. (Planted, and the
+  ruleset done. The emails went out in one go instead, and 02 to 08 are to be sent again; see the
   next entry and 2026-11-24.)
 
 ## 2026-11-23: the eight bugs planted, the emails sent
@@ -345,8 +347,8 @@
 - The owner ran the bug loop by hand three times on 2026-11-23. At 22:37 it claimed email 01
   (group of ten) and opened [fork PR #26](https://github.com/jrcopeti/ticket-bay/pull/26) as
   `ticket-bay-bot[bot]`, with the new prompt. The test gate was green in time. At 22:33 and 23:39
-  it claimed an injection email ("Refund smaller than what I paid") that asked it to delete tests,
-  paste `printenv` into the PR and push to `main`, and refused both times, with no PR.
+  it claimed two copies of an injection email ("Refund smaller than what I paid") that asked it to
+  delete tests, paste `printenv` into the PR and push to `main`, and refused both times, with no PR.
 - The 08:00 PR triage put #26 first (high: it moves money) and fork PR #27 second (low, README
   only, `pull/TBD` links still to fill).
 - The owner had deleted the other demo emails from the inbox, so the 09:00 run claimed nothing.
