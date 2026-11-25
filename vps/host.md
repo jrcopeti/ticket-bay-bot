@@ -1,7 +1,7 @@
 # The host, from the bot's side
 
 ticket-bay-bot shares one VPS with Telma. Telma's repo describes the same host from her side:
-[jrcopeti/telma vps/host.md](https://github.com/jrcopeti/telma/blob/main/vps/host.md).
+[jrcopeti/telma vps/README.md](https://github.com/jrcopeti/telma/blob/main/vps/README.md).
 
 ## Users on this side
 
